@@ -1,446 +1,372 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AI Augmented Plaque in Filadelfia Square by DeepSeek</title>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      font-family: 'Georgia', serif;
-      line-height: 1.7;
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 25px;
-      background-color: #fafafa;
-      color: #333;
-    }
-    @media print {
-      body {
-        padding: 15px;
-        font-size: 14px;
-      }
-      .no-print {
-        display: none;
-      }
-    }
-    h1, h2, h3 {
-      color: #1a3d5f;
-      margin-top: 1.5em;
-      border-bottom: 2px solid #4a86c7;
-      padding-bottom: 8px;
-    }
-    h1 {
-      text-align: center;
-      font-size: 2.4em;
-      margin-bottom: 10px;
-    }
-    .subtitle {
-      text-align: center;
-      font-size: 1.2em;
-      color: #5a5a5a;
-      margin-bottom: 30px;
-      font-style: italic;
-    }
-    .image-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
-      margin: 30px 0;
-    }
-    .image-container img {
-      border-radius: 6px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      max-width: 100%;
-      height: auto;
-      border: 1px solid #e0e0e0;
-    }
-    .quote {
-      background: #edf4fb;
-      border-left: 4px solid #4a86c7;
-      padding: 20px;
-      margin: 30px 0;
-      font-style: italic;
-      font-size: 1.1em;
-      line-height: 1.6;
-      color: #2c3e50;
-    }
-    .correction-note {
-      background: #fff8e1;
-      padding: 15px;
-      border-radius: 8px;
-      font-size: 0.95em;
-      margin: 25px 0;
-      border: 1px dashed #ffb300;
-    }
-    .climate-box {
-      background: #e8f5e9;
-      padding: 20px;
-      border-radius: 8px;
-      margin: 25px 0;
-      border: 1px solid #c8e6c9;
-    }
-    .water-feature {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      max-width: 300px;
-    }
-    .water-feature img {
-      max-height: 200px;
-    }
-    .regional-hydrology, .volcanic-context, .water-management {
-      padding: 25px;
-      border-radius: 10px;
-      margin: 35px 0;
-    }
-    .regional-hydrology {
-      background: #e1f5fe;
-      border: 1px solid #b3e5fc;
-    }
-    .volcanic-context {
-      background: #ffebee;
-      border: 1px solid #ffcdd2;
-    }
-    .water-management {
-      background: #e0f7fa;
-      border: 1px solid #b2ebf2;
-    }
-    .volcano-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 25px;
-      margin-top: 20px;
-    }
-    .volcano-fact {
-      background: #fce4ec;
-      padding: 18px;
-      border-radius: 8px;
-      border: 1px solid #f8bbd0;
-    }
-    .geology-map {
-      text-align: center;
-      margin: 25px 0;
-    }
-    .geology-map img {
-      max-width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    }
-    .dedication {
-      text-align: center;
-      margin: 40px 0;
-      padding: 30px;
-      background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
-      border-radius: 10px;
-      border-left: 5px solid #7e57c2;
-      font-style: italic;
-      font-size: 1.15em;
-      color: #4527a0;
-    }
-    footer {
-      margin-top: 50px;
-      text-align: center;
-      padding: 20px;
-      border-top: 2px solid #4a86c7;
-      color: #5a5a5a;
-      font-size: 0.9em;
-    }
-    ul {
-      padding-left: 25px;
-    }
-    li {
-      margin-bottom: 10px;
-    }
-
-    /* Volcanic media container */
-    .volcano-media-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 20px;
-      margin: 25px 0;
-      align-items: center;
-    }
-    .volcano-map-container {
-      flex: 1;
-      min-width: 300px;
-      max-width: 48%;
-    }
-    .volcano-video-container {
-      position: relative;
-    }
-    .volcano-video {
-      width: 100%;
-      height: auto;
-      background: #000;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .media-label {
-      font-weight: bold;
-      text-align: center;
-      margin-bottom: 8px;
-      color: #b71c1c;
-    }
-    .media-caption {
-      text-align: center;
-      font-style: italic;
-      margin-top: 8px;
-      font-size: 0.9em;
-      color: #555;
-    }
-    .play-fallback {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0,0,0,0.7);
-      color: white;
-      padding: 10px 20px;
-      border-radius: 30px;
-      font-size: 1.2em;
-      cursor: pointer;
-      z-index: 10;
-      display: none; /* Hidden by default */
-    }
-    .play-fallback.visible {
-      display: block;
-    }
-
-    @media (max-width: 768px) {
-      .image-container,
-      .volcano-media-container {
-        flex-direction: column;
-        align-items: center;
-      }
-      .volcano-map-container,
-      .volcano-video-container {
-        max-width: 100%;
-      }
-      h1 {
-        font-size: 1.8em;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Augmented Plaque in Filadelfia Square by DeepSeek</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.7;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 25px;
+            background-color: #fafafa;
+            color: #333;
+        }
+        @media print {
+            body {
+                padding: 15px;
+                font-size: 14px;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+        h1, h2, h3 {
+            color: #1a3d5f;
+            margin-top: 1.5em;
+            border-bottom: 2px solid #4a86c7;
+            padding-bottom: 8px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.4em;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            font-size: 1.2em;
+            color: #5a5a5a;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        .image-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 30px 0;
+            justify-content: center;
+        }
+        .image-container img {
+            border-radius: 6px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #e0e0e0;
+        }
+        .quote {
+            background: #edf4fb;
+            border-left: 4px solid #4a86c7;
+            padding: 20px;
+            margin: 30px 0;
+            font-style: italic;
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #2c3e50;
+        }
+        .correction-note {
+            background: #fff8e1;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            margin: 25px 0;
+            border: 1px dashed #ffb300;
+        }
+        .climate-box {
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border: 1px solid #c8e6c9;
+        }
+        .water-feature {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 300px;
+        }
+        .water-feature img {
+            max-height: 200px;
+        }
+        .regional-hydrology, .volcanic-context, .water-management {
+            padding: 25px;
+            border-radius: 10px;
+            margin: 35px 0;
+        }
+        .regional-hydrology {
+            background: #e1f5fe;
+            border: 1px solid #b3e5fc;
+        }
+        .volcanic-context {
+            background: #ffebee;
+            border: 1px solid #ffcdd2;
+        }
+        .water-management {
+            background: #e0f7fa;
+            border: 1px solid #b2ebf2;
+        }
+        .volcano-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-top: 20px;
+        }
+        .volcano-fact {
+            background: #fce4ec;
+            padding: 18px;
+            border-radius: 8px;
+            border: 1px solid #f8bbd0;
+        }
+        .geology-map {
+            text-align: center;
+            margin: 25px 0;
+        }
+        .geology-map img {
+            max-width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        }
+        .dedication {
+            text-align: center;
+            margin: 40px 0;
+            padding: 30px;
+            background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+            border-radius: 10px;
+            border-left: 5px solid #7e57c2;
+            font-style: italic;
+            font-size: 1.15em;
+            color: #4527a0;
+        }
+        footer {
+            margin-top: 50px;
+            text-align: center;
+            padding: 20px;
+            border-top: 2px solid #4a86c7;
+            color: #5a5a5a;
+            font-size: 0.9em;
+        }
+        ul {
+            padding-left: 25px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        /* Volcanic media container */
+        .volcano-media-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin: 25px 0;
+        }
+        .volcano-media-item {
+            flex: 1;
+            min-width: 300px;
+            max-width: 640px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+        .volcano-video {
+            background: #000;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .media-caption {
+            text-align: center;
+            font-style: italic;
+            margin-top: 8px;
+            font-size: 0.9em;
+            color: #555;
+        }
+        @media (max-width: 768px) {
+            .image-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            .volcano-grid {
+                grid-template-columns: 1fr;
+            }
+            .water-feature {
+                max-width: 100%;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            .volcano-media-container {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
+    <header>
+        <h1>AI Augmented Plaque in Filadelfia Square by DeepSeek</h1>
+        <div class="subtitle">Historical Hydrology & Geological Context of Filadelfia</div>
+    </header>
 
-<header>
-  <h1>AI Augmented Plaque in Filadelfia Square by DeepSeek</h1>
-  <div class="subtitle">Historical Hydrology & Geological Context of Filadelfia</div>
-</header>
-
-<div class="image-container">
-  <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0f/6d/41/db/tenuta-sant-eufemia-vista.jpg?w=900&h=-1&s=1" alt="Panoramic view of Gulf of Sant'Eufemia">
-  <img src="https://calabriastraordinaria.it/api/image-loader?url=%2Fstorage%2Fimages%2F2788%2F30223a7b5f3e0171f494a86a3180a7f3.jpg&w=1080&q=75" alt="Topography of Filadelfia region">
-</div>
-
-<div class="correction-note">
-  <strong>Scholar's Note:</strong> This AI-enhanced plaque corrects historical inaccuracies using geospatial analysis and geological modeling. Original text dated c.1783.
-</div>
-
-<h2>Geological Foundation</h2>
-<p>Filadelfia's landscape is shaped by the tectonic collision between the African and Eurasian plates, creating the Calabrian Arc's complex geology. The area features:</p>
-<ul>
-  <li><strong>Allochthonous units</strong> of metamorphic rock thrust during Miocene orogenesis</li>
-  <li><strong>Neogene sediments</strong> filling tectonic basins</li>
-  <li><strong>Permeable limestone aquifers</strong> overlying impermeable phyllite basement</li>
-  <li><strong>Detrital valley fills</strong> from Quaternary erosion</li>
-</ul>
-<p>This configuration creates ideal conditions for spring formation where permeable layers meet impermeable strata. Water emerges when aquifer pressure falls below the overburden weight, as documented by Engineer Martire.</p>
-
-<h2>Natural Environment</h2>
-<h3>Vegetation & Hydrology</h3>
-<p>The vegetation transitions from Mediterranean scrub at lower elevations to alpine species at higher altitudes. The territory is characterized by <strong>numerous springs</strong> that enabled scattered settlements since antiquity. Major waterways include:</p>
-<ul>
-  <li><strong>Fosso dei Tre Carlini</strong> (western sector, SW-NW flow)</li>
-  <li><strong>Torrente Castelmonardo</strong> (central sector, NW-SW flow)</li>
-  <li><strong>Fosso Rozzo</strong> (eastern sector, NW-SW flow)</li>
-</ul>
-<p>These <strong>torrential rivers</strong> remain dry in summer but generate flash floods carrying debris during autumn/winter rains – typical of Calabrian rivers with small basins and steep gradients.</p>
-
-<div class="climate-box">
-  <h3>Climate Analysis</h3>
-  <p>The <strong>De Martonne Aridity Index</strong> confirms the humid climate:</p>
-  <p><strong>Formula</strong>: I = P / (T + 10)<br>
-  <strong>Mean annual rainfall (P)</strong>: 1,451 mm<br>
-  <strong>Mean annual temperature (T)</strong>: 14.6°C (adjusted from sea-level 18.2°C at -0.6°C/100m)<br>
-  <strong>Result</strong>: I = 1,451 / (14.6 + 10) = <strong>59.0</strong> → Humid classification</p>
-</div>
-
-<div class="regional-hydrology">
-  <h3>Regional Water Systems</h3>
-  <div class="image-container">
-    <div class="water-feature">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Lago_dell%27Angitola_nel_Parco_delle_Serre.JPG/240px-Lago_dell%27Angitola_nel_Parco_delle_Serre.JPG" alt="Lago Angitola reservoir">
-      <p><em>Lago Angitola - Artificial reservoir in Serre Regional Park</em></p>
-    </div>
-  </div>
-  <p>Just 15km southeast of Filadelfia, <strong>Lago Angitola</strong> represents modern water management in the Serre mountains. Created in 1966 by damming the Angitola River, this reservoir:</p>
-  <ul>
-    <li>Provides irrigation for the agricultural plains of Sant'Eufemia</li>
-    <li>Serves as critical habitat for 130+ bird species</li>
-    <li>Demonstrates how traditional spring systems evolved into engineered solutions</li>
-    <li>Contrasts with Filadelfia's natural springs as a managed water source</li>
-  </ul>
-</div>
-
-<h2>Historical Foundation (1783)</h2>
-<p>Founded at 600m altitude on a foothill (<em>propaggine</em>) of the Serre mountains, the initial settlement site was called <strong>Piano della Gorna</strong>. Survivors of the 1783 Calabrian earthquakes gathered here to establish the new city. Founder Elia Serrao documented:</p>
-<div class="quote">
-  "Water, the second essential quality of a good site... Within its circuit, the hill possesses <strong>seven clear springs</strong> sufficient for drinking and irrigation. Two small rivers power mills for the city's benefit. Political thinkers rightly value coastal access, recalling Themistocles: 'He who commands the sea easily commands the land.'"
-</div>
-
-<div class="image-container">
-  <div class="water-feature">
-    <img src="https://tse3.mm.bing.net/th?id=OIP.MFopAYyk2G0i9O_3iKh9KgHaE7&pid=Api&P=0&h=180" alt="Fonte Ficara spring">
-    <p><em>Fonte Ficara - The legendary spring feeding Filadelfia</em></p>
-  </div>
-  <img src="https://uploads.mapservices.eu/nefos_tirol/site-files/1102/uploads/imagerender.aspxIDfa0799b5a79e6f9228b990701f89436a" alt="Ancient water channels in Filadelfia">
-</div>
-
-<h2>Springs & Social Heritage</h2>
-<p>Key springs demonstrate distinct hydrogeological mechanisms:</p>
-<ul>
-  <li><strong>Rheocrenic springs</strong> (flowing streams) at valley margins</li>
-  <li><strong>Contact springs</strong> where permeable limestone meets impermeable basement</li>
-  <li><strong>Fracture springs</strong> emerging along fault lines</li>
-</ul>
-<p><strong>Fonte Ficara</strong> exemplifies contact spring hydrology, where groundwater percolating through <strong>karstified limestone</strong> emerges upon encountering impermeable phyllite layers. These sites evolved into social hubs known as <strong>Ficarazza</strong> – places of leisure, storytelling, and collective memory.</p>
-
-<div class="water-management">
-  <h2>Water Management Legacy</h2>
-  <div class="geology-map">
-    <img src="https://www.researchgate.net/profile/Manuel-Curzi/publication/345242825/figure/download/fig1/AS:1099139756621826@1639066747534/Simplified-structural-geological-map-of-Italy-showing-a-synthesis-of-the-P-T-paths.png" alt="Structural geological map of Italy">
-    <p><em>Simplified structural map showing Italy's complex geology that determines aquifer formation (Source: ResearchGate)</em></p>
-  </div>
-  <p>Filadelfia's water systems reflect sophisticated adaptation to Calabria's challenging geology. Traditional engineering includes:</p>
-  <ul>
-    <li><strong>Qanat-inspired collection</strong>: Stone-lined shafts (<em>inghissato</em>) tapping aquifer layers</li>
-    <li><strong>Terracotta distribution networks</strong>: Ceramic pipes spanning kilometers with precise gradients</li>
-    <li><strong>Monumental cisterns</strong>: Underground reservoirs with calcarenite filtration beds</li>
-    <li><strong>Spring capture chambers</strong>: Stone structures regulating flow from contact springs</li>
-  </ul>
-  <p>These systems optimize water capture from the region's complex faulted limestone aquifers, demonstrating how communities adapted to geological constraints. The technology shows Arab and Byzantine influences, refined through centuries of local innovation.</p>
-</div>
-
-<div class="volcanic-context">
-  <h2>Volcanic Context of Italy</h2>
-
-  <div class="volcano-media-container">
-    <!-- Volcanic Map -->
-    <div class="volcano-map-container">
-      <div class="media-label">Tectonic Map of Italian Volcanoes</div>
-      <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fgeology.com%2Fvolcanoes%2Fstromboli%2Fstromboli-italy-map.gif&f=1&nofb=1&ipt=de075b59eb164719c9d05f4c6ac6e6b32af5db83fa7e9d93c7b5343a68a7517b" 
-           alt="Stromboli Volcano, Italy: Map, Facts, Eruption Pictures"
-           style="width:100%; border-radius:8px;">
-      <p class="media-caption">Source: Geology.com</p>
+    <div class="image-container">
+        <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0f/6d/41/db/tenuta-sant-eufemia-vista.jpg?w=900&h=-1&s=1" alt="Panoramic view of Gulf of Sant'Eufemia">
+        <img src="https://calabriastraordinaria.it/api/image-loader?url=%2Fstorage%2Fimages%2F2788%2F30223a7b5f3e0171f494a86a3180a7f3.jpg&w=1080&q=75" alt="Topography of Filadelfia region">
     </div>
 
-    <!-- Vesuvius Video -->
-    <div class="volcano-video-container">
-      <div class="media-label">1944 Eruption of Vesuvius</div>
-      <div class="play-fallback" id="playFallback">Click to Play Video</div>
-      <video class="volcano-video"
-          id="vesuviusVideo"
-          src="https://freddyhardest.github.io/oggy/versuvius.mp4" 
-          autoplay
-          muted
-          playsinline
-          loop
-          poster="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Mt_Vesuvius_79_AD_eruption_3.svg/1200px-Mt_Vesuvius_79_AD_eruption_3.svg.png">
-          Your browser does not support HTML5 video.
-      </video>
-      <p class="media-caption">Historic US Army footage (autoplaying)</p>
+    <div class="correction-note">
+        <strong>Scholar's Note:</strong> This AI-enhanced plaque corrects historical inaccuracies using geospatial analysis and geological modeling. Original text dated c.1783.
     </div>
-  </div>
 
-  <div class="volcano-grid">
-    <div class="volcano-fact">
-      <h3>Stromboli: Lighthouse of the Mediterranean</h3>
-      <p>Located 300km southwest of Filadelfia in the Aeolian Islands, Stromboli is one of the world's most active volcanoes. Notable features:</p>
-      <ul>
-        <li>Continuous eruptions for 2,000+ years</li>
-        <li>"Strombolian" eruption pattern (moderate bursts)</li>
-        <li>926m summit elevation</li>
-        <li>Forms its own volcanic island</li>
-      </ul>
+    <h2>Geological Foundation</h2>
+    <p>Filadelfia's landscape is shaped by the tectonic collision between the African and Eurasian plates, creating the Calabrian Arc's complex geology. The area features:</p>
+    <ul>
+        <li><strong>Allochthonous units</strong> of metamorphic rock thrust during Miocene orogenesis</li>
+        <li><strong>Neogene sediments</strong> filling tectonic basins</li>
+        <li><strong>Permeable limestone aquifers</strong> overlying impermeable phyllite basement</li>
+        <li><strong>Detrital valley fills</strong> from Quaternary erosion</li>
+    </ul>
+    <p>This configuration creates ideal conditions for spring formation where permeable layers meet impermeable strata. Water emerges when aquifer pressure falls below the overburden weight, as documented by Engineer Martire.</p>
+
+    <h2>Natural Environment</h2>
+    <h3>Vegetation & Hydrology</h3>
+    <p>The vegetation transitions from Mediterranean scrub at lower elevations to alpine species at higher altitudes. The territory is characterized by numerous springs that enabled scattered settlements since antiquity. Major waterways include:</p>
+    <ul>
+        <li><strong>Fosso dei Tre Carlini</strong> (western sector, SW-NW flow)</li>
+        <li><strong>Torrente Castelmonardo</strong> (central sector, NW-SW flow)</li>
+        <li><strong>Fosso Rozzo</strong> (eastern sector, NW-SW flow)</li>
+    </ul>
+    <p>These torrential rivers remain dry in summer but generate flash floods carrying debris during autumn/winter rains – typical of Calabrian rivers with small basins and steep gradients.</p>
+
+    <div class="climate-box">
+        <h3>Climate Analysis</h3>
+        <p>The De Martonne Aridity Index confirms the humid climate:</p>
+        <p><strong>Formula</strong>: I = P / (T + 10)<br>
+        <strong>Mean annual rainfall (P)</strong>: 1,451 mm<br>
+        <strong>Mean annual temperature (T)</strong>: 14.6°C (adjusted from sea-level 18.2°C at -0.6°C/100m)<br>
+        <strong>Result</strong>: I = 1,451 / (14.6 + 10) = 59.0 → Humid classification</p>
     </div>
-    <div class="volcano-fact">
-      <h3>Italy's Volcanic Framework</h3>
-      <p>Italy contains more active volcanoes than any other European country due to:</p>
-      <ul>
-        <li>African Plate subduction under Eurasian Plate</li>
-        <li>Tyrrhenian Basin crustal extension</li>
-        <li>Presence of the Calabrian Arc subduction zone</li>
-        <li>Magma generation at 100-200km depth</li>
-      </ul>
+
+    <div class="regional-hydrology">
+        <h3>Regional Water Systems</h3>
+        <div class="image-container">
+            <div class="water-feature">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Lago_dell%27Angitola_nel_Parco_delle_Serre.JPG/240px-Lago_dell%27Angitola_nel_Parco_delle_Serre.JPG" alt="Lago Angitola reservoir">
+                <p>Lago Angitola - Artificial reservoir in Serre Regional Park</p>
+            </div>
+        </div>
+        <p>Just 15km southeast of Filadelfia, Lago Angitola represents modern water management in the Serre mountains. Created in 1966 by damming the Angitola River, this reservoir:</p>
+        <ul>
+            <li>Provides irrigation for the agricultural plains of Sant'Eufemia</li>
+            <li>Serves as critical habitat for 130+ bird species</li>
+            <li>Demonstrates how traditional spring systems evolved into engineered solutions</li>
+            <li>Contrasts with Filadelfia's natural springs as a managed water source</li>
+        </ul>
     </div>
-  </div>
 
-  <h3>Regional Volcanic Influence</h3>
-  <p>While Filadelfia has no active volcanoes, its geology has been shaped by:</p>
-  <ul>
-    <li><strong>Volcanic ash deposits</strong> from Campanian eruptions (including Vesuvius)</li>
-    <li><strong>Tephra layers</strong> in soil profiles dating to 40,000 BP</li>
-    <li><strong>Submarine volcanism</strong> in the Tyrrhenian Basin affecting coastal geology</li>
-    <li><strong>Geothermal activity</strong> contributing to mineral-rich springs</li>
-  </ul>
-  <p>The 1783 earthquakes that led to Filadelfia's founding occurred in a region where volcanic and tectonic forces interact, with the Calabrian Arc being one of Europe's most seismically active zones.</p>
-</div>
+    <h2>Historical Foundation (1783)</h2>
+    <p>Founded at 600m altitude on a foothill of the Serre mountains, the initial settlement site was called Piano della Gorna. Survivors of the 1783 Calabrian earthquakes gathered here to establish the new city. Founder Elia Serrao documented:</p>
+    <div class="quote">
+        "Water, the second essential quality of a good site... Within its circuit, the hill possesses seven clear springs sufficient for drinking and irrigation. Two small rivers power mills for the city's benefit."
+    </div>
 
-<div class="dedication">
-  <h3>To the Mothers of Filadelfia</h3>
-  <p>As the springs (<em>sorgenti</em>) are the source of life for this land, so are the mothers the source of life for our families and our community. We honor the resilience of the women who, after the devastation of 1783, rebuilt their homes and nurtured a new generation on this hill. At the Ficarazza and other springs, they shared stories, wisdom, and the enduring spirit that defines Filadelfia. This plaque is dedicated to their memory and to the mothers who continue to be the fountainhead of our heritage.</p>
-</div>
+    <div class="image-container">
+        <div class="water-feature">
+            <img src="https://tse3.mm.bing.net/th?id=OIP.MFopAYyk2G0i9O_3iKh9KgHaE7&pid=Api&P=0&h=180" alt="Fonte Ficara spring">
+            <p>Fonte Ficara - The legendary spring feeding Filadelfia</p>
+        </div>
+        <img src="https://uploads.mapservices.eu/nefos_tirol/site-files/1102/uploads/imagerender.aspxIDfa0799b5a79e6f9228b990701f89436a" alt="Ancient water channels in Filadelfia">
+    </div>
 
-<footer>
-  <p>Commissioned by Filadelfia Municipality | DeepSeek-R1 Historical Reconstruction</p>
-  <p>❤️ Created with care for family heritage ❤️</p>
-</footer>
+    <h2>Springs & Social Heritage</h2>
+    <p>Key springs demonstrate distinct hydrogeological mechanisms:</p>
+    <ul>
+        <li><strong>Rheocrenic springs</strong> (flowing streams) at valley margins</li>
+        <li><strong>Contact springs</strong> where permeable limestone meets impermeable basement</li>
+        <li><strong>Fracture springs</strong> emerging along fault lines</li>
+    </ul>
+    <p>Fonte Ficara exemplifies contact spring hydrology, where groundwater percolating through karstified limestone emerges upon encountering impermeable phyllite layers. These sites evolved into social hubs known as Ficarazza – places of leisure, storytelling, and collective memory.</p>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const video = document.getElementById('vesuviusVideo');
-    const playFallback = document.getElementById('playFallback');
+    <div class="water-management">
+        <h2>Water Management Legacy</h2>
+        <div class="geology-map">
+            <img src="https://www.researchgate.net/profile/Manuel-Curzi/publication/345242825/figure/download/fig1/AS:1099139756621826@1639066747534/Simplified-structural-geological-map-of-Italy-showing-a-synthesis-of-the-P-T-paths.png" alt="Structural geological map of Italy">
+            <p>Simplified structural map showing Italy's complex geology that determines aquifer formation</p>
+        </div>
+        <p>Filadelfia's water systems reflect sophisticated adaptation to Calabria's challenging geology. Traditional engineering includes:</p>
+        <ul>
+            <li><strong>Qanat-inspired collection</strong>: Stone-lined shafts tapping aquifer layers</li>
+            <li><strong>Terracotta distribution networks</strong>: Ceramic pipes spanning kilometers with precise gradients</li>
+            <li><strong>Monumental cisterns</strong>: Underground reservoirs with calcarenite filtration beds</li>
+            <li><strong>Spring capture chambers</strong>: Stone structures regulating flow from contact springs</li>
+        </ul>
+        <p>These systems optimize water capture from the region's complex faulted limestone aquifers, demonstrating how communities adapted to geological constraints. The technology shows Arab and Byzantine influences, refined through centuries of local innovation.</p>
+    </div>
 
-    // Attempt to play video automatically
-    if (video) {
-      const playPromise = video.play();
-      if (playPromise !== undefined) {
-        playPromise.then(() => {
-          // Success! Hide fallback button
-          playFallback.classList.remove('visible');
-        }).catch(error => {
-          // Autoplay blocked; show fallback
-          playFallback.classList.add('visible');
-        });
-      }
+    <div class="volcanic-context">
+        <h2>Volcanic Context of Italy</h2>
+        <div class="volcano-media-container">
+            <div class="volcano-media-item">
+                <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fgeology.com%2Fvolcanoes%2Fstromboli%2Fstromboli-italy-map.gif&f=1&nofb=1&ipt=de075b59eb164719c9d05f4c6ac6e6b32af5db83fa7e9d93c7b5343a68a7517b" 
+                     alt="Stromboli Volcano, Italy: Map, Facts, Eruption Pictures">
+                <p class="media-caption">Tectonic map of Italian volcanoes</p>
+            </div>
+            <div class="volcano-media-item volcano-video">
+                <video 
+                    src="https://freddyhardest.github.io/oggy/versuvius.mp4"
+                    autoplay
+                    loop
+                    playsinline
+                    controls
+                    style="width:100%; display:block;"
+                    poster="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Mt_Vesuvius_79_AD_eruption_3.svg/1200px-Mt_Vesuvius_79_AD_eruption_3.svg.png">
+                    Your browser does not support the video tag.
+                </video>
+                <p class="media-caption">Mount Vesuvius: Europe's most dangerous volcano</p>
+            </div>
+        </div>
+        <div class="volcano-grid">
+            <div class="volcano-fact">
+                <h3>Stromboli: Lighthouse of the Mediterranean</h3>
+                <p>Located 300km southwest of Filadelfia in the Aeolian Islands, Stromboli is one of the world's most active volcanoes. Notable features:</p>
+                <ul>
+                    <li>Continuous eruptions for 2,000+ years</li>
+                    <li>"Strombolian" eruption pattern (moderate bursts)</li>
+                    <li>926m summit elevation</li>
+                    <li>Forms its own volcanic island</li>
+                </ul>
+            </div>
+            <div class="volcano-fact">
+                <h3>Italy's Volcanic Framework</h3>
+                <p>Italy contains more active volcanoes than any other European country due to:</p>
+                <ul>
+                    <li>African Plate subduction under Eurasian Plate</li>
+                    <li>Tyrrhenian Basin crustal extension</li>
+                    <li>Presence of the Calabrian Arc subduction zone</li>
+                    <li>Magma generation at 100-200km depth</li>
+                </ul>
+            </div>
+        </div>
+        <h3>Regional Volcanic Influence</h3>
+        <p>While Filadelfia has no active volcanoes, its geology has been shaped by:</p>
+        <ul>
+            <li>Volcanic ash deposits from Campanian eruptions (including Vesuvius)</li>
+            <li>Tephra layers in soil profiles dating to 40,000 BP</li>
+            <li>Submarine volcanism in the Tyrrhenian Basin affecting coastal geology</li>
+            <li>Geothermal activity contributing to mineral-rich springs</li>
+        </ul>
+        <p>The 1783 earthquakes that led to Filadelfia's founding occurred in a region where volcanic and tectonic forces interact, with the Calabrian Arc being one of Europe's most seismically active zones.</p>
+    </div>
 
-      // Add click handler to fallback
-      playFallback.addEventListener('click', () => {
-        video.muted = false;
-        video.play()
-          .then(() => {
-            playFallback.classList.remove('visible');
-          })
-          .catch(() => {
-            alert("Playback failed. Please try again.");
-          });
-      });
+    <div class="dedication">
+        <h3>For the Mothers of Filadelfia</h3>
+        <p>This plaque honors the generations of women who carried water from these springs nourishing families through centuries of history. Special appreciation to the mothers preserving Calabrian heritage today.</p>
+    </div>
 
-      // Show controls once playing
-      video.addEventListener('play', () => {
-        video.controls = true;
-      });
-    }
-  });
-</script>
-
+    <footer>
+        <p>Commissioned by Filadelfia Municipality | DeepSeek-R1 Historical Reconstruction</p>
+        <p>❤️ Created with care for family heritage ❤️</p>
+    </footer>
 </body>
 </html>
