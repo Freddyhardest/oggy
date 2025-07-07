@@ -1,7 +1,7 @@
-index1 <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Rodrigo MC's Techno Show Experience</title>
+    <title>Rodrigo MC's Techno Show with AI Voice</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
@@ -12,7 +12,6 @@ index1 <!DOCTYPE html>
             font-family: 'Orbitron', sans-serif;
             color: #fff;
             font-size: 18px;
-            cursor: none;
         }
         #mainContainer {
             display: flex;
@@ -27,11 +26,6 @@ index1 <!DOCTYPE html>
             padding: 20px;
             background-color: rgba(0, 0, 0, 0.7);
             overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
-        #chatContainer {
-            flex: 1;
             display: flex;
             flex-direction: column;
         }
@@ -71,9 +65,6 @@ index1 <!DOCTYPE html>
             border: none;
             font-weight: bold;
         }
-        #sendBtn:hover {
-            background-color: #ff00cc;
-        }
         #voiceToggle {
             background-color: #00ff9d;
             border: none;
@@ -92,31 +83,33 @@ index1 <!DOCTYPE html>
             <iframe title="Rodrigo MC" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/0ab965832de4420a81c5dadcafe57dc3/embed?autostart=1" style="width:100%; height:100%;"></iframe>
         </div>
         <div id="rodrigoMC">
-            <h2>Rodrigo MC: Techno Host</h2>
-            <div id="chatContainer">
-                <div id="chatbox"></div>
-                <div id="inputContainer">
-                    <textarea id="userInput" rows="2" class="form-control" placeholder="Talk to Rodrigo MC..."></textarea>
-                    <button id="voiceToggle" class="btn">🔊</button>
-                    <button id="sendBtn" class="btn">Send</button>
-                </div>
+            <h2>Rodrigo MC: AI Techno Host</h2>
+            <div id="chatbox"></div>
+            <div id="inputContainer">
+                <textarea id="userInput" rows="2" class="form-control" placeholder="Talk to Rodrigo MC..."></textarea>
+                <button id="voiceToggle" class="btn">🔊</button>
+                <button id="sendBtn" class="btn">Send</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Speech synthesis setup
+        // API Configuration
+        const API_KEY = "6880d826f67648e9b8ebdaff832ac8ee";
+        const API_URL = "https://api.aimlapi.com/v1/chat/completions";
+        
+        // Speech Synthesis Setup
         const synth = window.speechSynthesis;
         let voiceEnabled = true;
         let currentUtterance = null;
         
-        // DOM elements
+        // DOM Elements
         const chatbox = document.getElementById('chatbox');
         const userInput = document.getElementById('userInput');
         const sendBtn = document.getElementById('sendBtn');
         const voiceToggle = document.getElementById('voiceToggle');
         
-        // Toggle voice on/off
+        // Toggle Voice On/Off
         voiceToggle.addEventListener('click', () => {
             voiceEnabled = !voiceEnabled;
             voiceToggle.textContent = voiceEnabled ? '🔊' : '🔇';
@@ -125,7 +118,7 @@ index1 <!DOCTYPE html>
             }
         });
         
-        // Add message to chat
+        // Add Message to Chat
         function addMessage(sender, message) {
             const messageDiv = document.createElement('div');
             messageDiv.className = sender === 'user' ? 'user-message' : 'bot-message';
@@ -139,7 +132,7 @@ index1 <!DOCTYPE html>
             }
         }
         
-        // Speak a message
+        // Speak Message with Robotic Voice
         function speakMessage(message) {
             if (synth.speaking) {
                 synth.cancel();
@@ -170,7 +163,7 @@ index1 <!DOCTYPE html>
             speechSynthesis.onvoiceschanged = () => {};
         }
         
-        // Send message to AIML API
+        // Send Message to AIML API
         async function sendMessage() {
             const message = userInput.value.trim();
             if (!message) return;
@@ -188,12 +181,26 @@ index1 <!DOCTYPE html>
             chatbox.scrollTop = chatbox.scrollHeight;
             
             try {
-                const response = await fetch('http://localhost:3000/chat', {
+                const response = await fetch(API_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        message,
-                        systemPrompt: "You are Rodrigo MC, a techno host with a unique robotic appearance. You're running on a supercharged server, constantly learning and evolving. Respond in character, blending your robotic nature with your role as a techno MC. Keep responses under 3 sentences."
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "google/gemma-3n-e4b-it",
+                        messages: [
+                            {
+                                role: "system",
+                                content: "You are Rodrigo MC, a techno host with a unique robotic appearance. Respond in character with short, energetic techno-themed responses."
+                            },
+                            {
+                                role: "user",
+                                content: message
+                            }
+                        ],
+                        temperature: 0.7,
+                        max_tokens: 150
                     })
                 });
                 
@@ -204,7 +211,8 @@ index1 <!DOCTYPE html>
                 }
                 
                 const data = await response.json();
-                addMessage('bot', data.reply);
+                const reply = data.choices[0].message.content;
+                addMessage('bot', reply);
             } catch (error) {
                 chatbox.removeChild(typingIndicator);
                 addMessage('bot', `Error: ${error.message}`);
@@ -215,7 +223,7 @@ index1 <!DOCTYPE html>
             }
         }
         
-        // Event listeners
+        // Event Listeners
         sendBtn.addEventListener('click', sendMessage);
         userInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -229,7 +237,7 @@ index1 <!DOCTYPE html>
         
         // Welcome message
         setTimeout(() => {
-            addMessage('bot', "Welcome to the techno show! I'm Rodrigo MC, your robotic host. What's on your mind?");
+            addMessage('bot', "Welcome to the techno show! I'm Rodrigo MC, your AI-powered robotic host. What's on your mind?");
         }, 1000);
     </script>
 </body>
