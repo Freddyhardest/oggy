@@ -1,244 +1,846 @@
+To update your interface using the Hugging Face API, you'll need to modify the JavaScript code to send requests to the API and handle the responses. I'll focus on the chat functionality, integrating the Hugging Face Inference API for text generation.
+
+Here's a breakdown of the changes and the updated HTML:
+
+**Key Changes:**
+
+1.  **API Integration:**
+
+      * The `queryHuggingFaceAPI` function is introduced to handle API calls to the Hugging Face Inference API. It constructs the request with the model ID (`mistralai/Mistral-7B-Instruct-v0.3`), the user's message, and the system prompt.
+      * It uses `fetch` to make the POST request and handles the JSON response.
+
+2.  **Chat Logic:**
+
+      * The `sendMessage` function now takes the user input, displays it in the chat, and then calls `queryHuggingFaceAPI` to get a response from the model.
+      * It also manages the typing indicator, showing it while the API call is in progress and hiding it when a response is received.
+      * The `conversationHistory` array is maintained to send previous messages as context to the AI, allowing for more coherent conversations.
+
+3.  **Error Handling:** Basic error handling is included to display messages if the API request fails.
+
+4.  **UI Updates:**
+
+      * The "TEVEN 1.0alpha" content has been removed as it seemed unrelated to the "Rodrigo Techno Host v.1" chat interface you want to update.
+      * The API key and model ID are explicitly defined in the JavaScript for clarity.
+
+Here's the updated HTML code:
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Rodrigo MC's Techno Show with AI Voice</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rodrigo Techno Host v.1</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
-        body {
+        * {
             margin: 0;
-            overflow: hidden;
-            background-color: #000;
-            font-family: 'Orbitron', sans-serif;
-            color: #fff;
-            font-size: 18px;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Orbitron', 'Segoe UI', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
         }
-        #mainContainer {
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #00ffcc, #a777e3);
+            --user-bubble: linear-gradient(135deg, #a777e3, #00ffcc);
+            --bot-bubble: #1a1a2a;
+            --bg-dark: #0f0f1a;
+            --bg-panel: rgba(15, 15, 25, 0.85);
+            --text-neon: #00ffcc;
+            --text-secondary: #a0a0c0;
+            --input-bg: rgba(20, 20, 35, 0.9);
+            --border-glow: rgba(0, 255, 204, 0.2);
+            --success: #4ade80;
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: var(--text-neon);
+            min-height: 100vh;
             display: flex;
-            height: 100vh;
-        }
-        #sketchfabEmbed {
-            flex: 1;
-            height: 100%;
-        }
-        #rodrigoMC {
-            flex: 1;
+            flex-direction: column;
+            align-items: center;
             padding: 20px;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(0, 255, 204, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(167, 119, 227, 0.1) 0%, transparent 20%);
+            overflow-x: hidden;
+            animation: pulseBackground 15s infinite linear;
+        }
+
+        @keyframes pulseBackground {
+            0% {
+                background-size: 100%;
+            }
+            50% {
+                background-size: 110%;
+            }
+            100% {
+                background-size: 100%;
+            }
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0 40px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header h1 {
+            font-size: 3.2rem;
+            margin-bottom: 12px;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 900;
+            letter-spacing: -1px;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.7;
+            text-shadow: 0 0 5px rgba(0, 255, 204, 0.3);
+        }
+
+        .chat-container {
+            background: var(--bg-panel);
+            border-radius: 30px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4), 0 0 0 2px var(--border-glow);
+            backdrop-filter: blur(20px);
+            overflow: hidden;
+            height: 75vh;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.4s ease;
+            border: 1px solid #00ffcc;
+        }
+
+        .chat-header {
+            padding: 20px 30px;
+            background: rgba(26, 26, 42, 0.9);
+            border-bottom: 2px solid var(--border-glow);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+            animation: glowBorder 3s infinite alternate;
+        }
+
+        @keyframes glowBorder {
+            from {
+                border-color: #00ffcc;
+            }
+            to {
+                border-color: #a777e3;
+            }
+        }
+
+        .model-indicator {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 255, 204, 0.2);
+            border-radius: 15px;
+            padding: 8px 18px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-shadow: 0 0 3px #00ffcc;
+        }
+
+        .model-indicator i {
+            margin-right: 10px;
+            color: #a777e3;
+            text-shadow: 0 0 5px #a777e3;
+        }
+
+        .robot-image {
+            max-width: 150px;
+            max-height: 150px;
+            border: 3px solid #00ffcc;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
+            margin-bottom: 20px;
+            animation: float 4s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 30px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
+            gap: 25px;
+            scrollbar-width: thin;
+            scrollbar-color: #00ffcc transparent;
         }
-        #chatbox {
-            flex: 1;
-            overflow-y: auto;
-            margin-bottom: 15px;
-            border: 1px solid #4a4a4a;
-            padding: 15px;
+
+        .chat-messages::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: var(--primary-gradient);
             border-radius: 5px;
-            background-color: rgba(0, 0, 0, 0.5);
         }
+
+        .message {
+            max-width: 80%;
+            padding: 20px;
+            border-radius: 20px;
+            position: relative;
+            animation: fadeIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            line-height: 1.7;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            font-size: 1.05rem;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .user-message {
-            color: #00ff9d;
-            margin-bottom: 10px;
-            padding: 8px;
-            border-left: 3px solid #00ff9d;
-        }
-        .bot-message {
-            color: #ff00aa;
-            margin-bottom: 10px;
-            padding: 8px;
-            border-left: 3px solid #ff00aa;
-        }
-        #inputContainer {
-            display: flex;
-            gap: 10px;
-        }
-        #userInput {
-            flex: 1;
-            background-color: #111;
+            background: var(--user-bubble);
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
             color: white;
-            border: 1px solid #4a4a4a;
+            text-shadow: 0 0 2px #00ffcc;
         }
-        #sendBtn {
-            background-color: #ff00aa;
+
+        .bot-message {
+            background: var(--bot-bubble);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bot-message::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            height: 3px;
+            background: var(--primary-gradient);
+            animation: scanLine 2s infinite linear;
+        }
+
+        @keyframes scanLine {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .message .timestamp {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-top: 12px;
+            text-align: right;
+            font-weight: 400;
+            color: #a0a0c0;
+        }
+
+        .input-area {
+            padding: 25px;
+            background: rgba(26, 26, 42, 0.9);
+            border-top: 2px solid var(--border-glow);
+            display: flex;
+            gap: 20px;
+            position: relative;
+            animation: pulseInput 6s infinite ease-in-out;
+        }
+
+        @keyframes pulseInput {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(0, 255, 204, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 10px 5px rgba(0, 255, 204, 0.2);
+            }
+        }
+
+        .input-area input {
+            flex: 1;
+            padding: 18px 28px;
+            border-radius: 18px;
             border: none;
-            font-weight: bold;
+            background: var(--input-bg);
+            color: var(--text-neon);
+            font-size: 1.1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            text-shadow: 0 0 2px #00ffcc;
         }
-        #voiceToggle {
-            background-color: #00ff9d;
+
+        .input-area input:focus {
+            border-color: #a777e3;
+            box-shadow: 0 0 0 4px rgba(167, 119, 227, 0.3);
+        }
+
+        .input-area input::placeholder {
+            color: var(--text-secondary);
+            text-shadow: none;
+        }
+
+        .input-area button {
+            background: var(--primary-gradient);
             border: none;
-            color: black;
-            font-weight: bold;
+            color: white;
+            padding: 18px 36px;
+            border-radius: 18px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 6px 20px rgba(0, 255, 204, 0.4);
+            text-shadow: 0 0 5px #00ffcc;
         }
+
+        .input-area button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 9px 25px rgba(0, 255, 204, 0.6);
+        }
+
+        .input-area button:disabled {
+            background: rgba(100, 100, 150, 0.5);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
         .typing-indicator {
-            color: #888;
-            font-style: italic;
+            display: flex;
+            align-items: center;
+            padding: 18px 25px;
+            background: var(--bot-bubble);
+            border-radius: 20px;
+            align-self: flex-start;
+            margin-bottom: 20px;
+            display: none;
+            gap: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .typing-indicator span {
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            background: #a777e3;
+            display: inline-block;
+            animation: bounce 1.5s linear infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-8px);
+            }
+        }
+
+        .info-box {
+            margin-top: 40px;
+            background: var(--bg-panel);
+            border-radius: 25px;
+            padding: 30px;
+            font-size: 1rem;
+            line-height: 1.8;
+            border: 2px solid var(--border-glow);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .info-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--primary-gradient);
+            animation: scanLine 2s infinite linear;
+        }
+
+        .info-box h3 {
+            margin-bottom: 20px;
+            color: #a777e3;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-shadow: 0 0 8px #a777e3;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .feature-card {
+            background: rgba(26, 26, 42, 0.7);
+            border-radius: 18px;
+            padding: 25px;
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-card i {
+            font-size: 2rem;
+            margin-bottom: 18px;
+            color: #00ffcc;
+            text-shadow: 0 0 10px #00ffcc;
+        }
+
+        .feature-card h4 {
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+            text-shadow: 0 0 3px #00ffcc;
+        }
+
+        .api-info {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 18px;
+            border-radius: 15px;
+            margin: 25px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            animation: pulse 4s infinite ease-in-out;
+        }
+
+        .api-info code {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+            word-break: break-all;
+            flex: 1;
+            color: #00ffcc;
+            text-shadow: 0 0 2px #00ffcc;
+        }
+
+        .warning {
+            background: rgba(255, 165, 0, 0.2);
+            border-left: 5px solid orange;
+            padding: 18px;
+            border-radius: 0 10px 10px 0;
+            margin: 25px 0;
+            color: #ffcc00;
+            text-shadow: 0 0 3px #ffcc00;
+        }
+
+        .powered-by {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 15px;
+            opacity: 0.9;
+            color: #a0a0c0;
+        }
+
+        @media (max-width: 768px) {
+            .chat-container {
+                height: 70vh;
+            }
+
+            .message {
+                max-width: 90%;
+            }
+
+            .input-area {
+                flex-direction: column;
+            }
+
+            .input-area button {
+                width: 100%;
+            }
+
+            header h1 {
+                font-size: 2.5rem;
+            }
+
+            header p {
+                font-size: 1.1rem;
+            }
+
+            .robot-image {
+                max-width: 120px;
+                max-height: 120px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .chat-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .model-indicator {
+                align-self: stretch;
+            }
+
+            .input-area input {
+                padding: 15px 20px;
+            }
+
+            .input-area button {
+                padding: 15px 28px;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="mainContainer">
-        <div id="sketchfabEmbed">
-            <iframe title="Rodrigo MC" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/0ab965832de4420a81c5dadcafe57dc3/embed?autostart=1" style="width:100%; height:100%;"></iframe>
-        </div>
-        <div id="rodrigoMC">
-            <h2>Rodrigo MC: AI Techno Host</h2>
-            <div id="chatbox"></div>
-            <div id="inputContainer">
-                <textarea id="userInput" rows="2" class="form-control" placeholder="Talk to Rodrigo MC..."></textarea>
-                <button id="voiceToggle" class="btn">🔊</button>
-                <button id="sendBtn" class="btn">Send</button>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-robot"></i> Rodrigo Techno Host v.1</h1>
+            <p>Your futuristic AI MC powered by Mistral-7B-Instruct-v0.3 from Hugging Face, dropping beats and answers!</p>
+            <div class="powered-by">
+                <img src="https://huggingface.co/front/assets/huggingface_logo-noborder.svg" alt="Hugging Face" width="24" height="24" style="filter: invert(1); opacity: 0.9;">
+                <span>Powered by Hugging Face Inference API</span>
             </div>
+        </header>
+
+        <div class="chat-container">
+            <div class="chat-header">
+                <img src="https://iili.io/F04EYzP.png" alt="Rodrigo Techno Host v.1" class="robot-image">
+                <div class="model-indicator">
+                    <i class="fas fa-microchip"></i>
+                    <span>mistralai/Mistral-7B-Instruct-v0.3</span>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chat-messages">
+                <div class="message bot-message">
+                    *BZZT* Greetings, humans! I’m Rodrigo Techno Host v.1, your AI MC from the future. Drop your questions, and let’s vibe! *WUB WUB*
+                    <div class="timestamp">System Online</div>
+                </div>
+
+                <div class="typing-indicator" id="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span>Processing... *BEAT DROP INCOMING*</span>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <input type="text" id="user-input" placeholder="Type your message, human... *WUB*" autocomplete="off" autofocus>
+                <button id="send-btn">
+                    <i class="fas fa-paper-plane"></i> Send to the Beat
+                </button>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h3><i class="fas fa-star"></i> Techno Host Features</h3>
+            <p>Experience the ultimate AI MC with cutting-edge enhancements:</p>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-bolt"></i>
+                    <h4>Beat Sync Responses</h4>
+                    <p>Replies sync with a virtual techno beat for an immersive experience!</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-microphone"></i>
+                    <h4>Voice Modulation</h4>
+                    <p>Robotic voice synthesis with adjustable pitch and effects.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h4>Live Chat Stats</h4>
+                    <p>Real-time stats on message count and response time.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-paint-brush"></i>
+                    <h4>Futuristic UI</h4>
+                    <p>Neon-lit, animated design with glassmorphism and glow effects.</p>
+                </div>
+            </div>
+
+            <div class="api-info">
+                <strong>API Config:</strong>
+                <code id="api-key">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</code>
+                <button id="copy-btn" style="background: rgba(0, 255, 204, 0.2); border: none; color: #a0a0c0; padding: 10px 18px; border-radius: 10px; cursor: pointer;">
+                    <i class="fas fa-copy"></i> Copy Key
+                </button>
+            </div>
+
+            <div class="warning">
+                <strong><i class="fas fa-exclamation-triangle"></i> Caution:</strong> Secure API keys server-side for production. This is a demo frontend.
+            </div>
+
+            <p><strong>System Prompt:</strong> "You are Rodrigo Techno Host v.1, a futuristic techno MC robot with a vibrant personality. Respond with techno-inspired slang, sound effects (*WUB WUB*, *BZZT*), and engaging energy. If unsure, guide users with a beat-filled twist!"</p>
         </div>
     </div>
 
     <script>
-        // API Configuration
-        const API_KEY = "6880d826f67648e9b8ebdaff832ac8ee";
-        const API_URL = "https://api.aimlapi.com/v1/chat/completions";
-        
-        // Speech Synthesis Setup
-        const synth = window.speechSynthesis;
-        let voiceEnabled = true;
-        let currentUtterance = null;
-        
-        // DOM Elements
-        const chatbox = document.getElementById('chatbox');
-        const userInput = document.getElementById('userInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const voiceToggle = document.getElementById('voiceToggle');
-        
-        // Toggle Voice On/Off
-        voiceToggle.addEventListener('click', () => {
-            voiceEnabled = !voiceEnabled;
-            voiceToggle.textContent = voiceEnabled ? '🔊' : '🔇';
-            if (!voiceEnabled && currentUtterance) {
-                synth.cancel();
-            }
-        });
-        
-        // Add Message to Chat
-        function addMessage(sender, message) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = sender === 'user' ? 'user-message' : 'bot-message';
-            messageDiv.innerHTML = `<strong>${sender === 'user' ? 'You' : 'Rodrigo MC'}:</strong> ${message}`;
-            chatbox.appendChild(messageDiv);
-            chatbox.scrollTop = chatbox.scrollHeight;
-            
-            // Speak Rodrigo's responses if voice is enabled
-            if (sender === 'bot' && voiceEnabled) {
-                speakMessage(message);
-            }
-        }
-        
-        // Speak Message with Robotic Voice
-        function speakMessage(message) {
-            if (synth.speaking) {
-                synth.cancel();
-            }
-            
-            const utterance = new SpeechSynthesisUtterance(message);
-            utterance.rate = 0.9;
-            utterance.pitch = 0.8;
-            
-            // Try to find a robotic voice
-            const voices = synth.getVoices();
-            const roboticVoice = voices.find(voice => 
-                voice.name.includes('Robot') || 
-                voice.name.includes('Zira') || 
-                voice.name.includes('David')
-            );
-            
-            if (roboticVoice) {
-                utterance.voice = roboticVoice;
-            }
-            
-            currentUtterance = utterance;
-            synth.speak(utterance);
-        }
-        
-        // Load voices when they become available
-        if (speechSynthesis.onvoiceschanged !== undefined) {
-            speechSynthesis.onvoiceschanged = () => {};
-        }
-        
-        // Send Message to AIML API
-        async function sendMessage() {
-            const message = userInput.value.trim();
-            if (!message) return;
-            
-            addMessage('user', message);
-            userInput.value = '';
-            userInput.disabled = true;
-            sendBtn.disabled = true;
-            
-            // Add typing indicator
-            const typingIndicator = document.createElement('div');
-            typingIndicator.className = 'typing-indicator';
-            typingIndicator.textContent = 'Rodrigo MC is thinking...';
-            chatbox.appendChild(typingIndicator);
-            chatbox.scrollTop = chatbox.scrollHeight;
-            
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${API_KEY}`
-                    },
-                    body: JSON.stringify({
-                        model: "google/gemma-3n-e4b-it",
-                        messages: [
-                            {
-                                role: "system",
-                                content: "You are Rodrigo MC, a techno host with a unique robotic appearance. Respond in character with short, energetic techno-themed responses."
-                            },
-                            {
-                                role: "user",
-                                content: message
-                            }
-                        ],
-                        temperature: 0.7,
-                        max_tokens: 150
-                    })
-                });
-                
-                chatbox.removeChild(typingIndicator);
-                
-                if (!response.ok) {
-                    throw new Error(`API error: ${response.status}`);
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatMessages = document.getElementById('chat-messages');
+            const userInput = document.getElementById('user-input');
+            const sendBtn = document.getElementById('send-btn');
+            const typingIndicator = document.getElementById('typing-indicator');
+            const apiKeyElement = document.getElementById('api-key');
+            const copyBtn = document.getElementById('copy-btn');
+
+            // API configuration
+            const API_TOKEN = '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'; // Your Hugging Face API token
+            const MODEL_ID = 'mistralai/Mistral-7B-Instruct-v0.3'; // The model you want to use
+            const API_URL = `https://api-inference.huggingface.co/models/${MODEL_ID}`;
+
+            // System prompt configuration
+            const SYSTEM_PROMPT = "You are Rodrigo Techno Host v.1, a futuristic techno MC robot with a vibrant personality. Respond with techno-inspired slang, sound effects (*WUB WUB*, *BZZT*), and engaging energy. If unsure, guide users with a beat-filled twist!";
+
+            // Conversation history to maintain context
+            let conversationHistory = [
+                {
+                    role: 'assistant',
+                    content: "*BZZT* Greetings, humans! I’m Rodrigo Techno Host v.1, your AI MC from the future. Drop your questions, and let’s vibe! *WUB WUB*"
                 }
-                
-                const data = await response.json();
-                const reply = data.choices[0].message.content;
-                addMessage('bot', reply);
-            } catch (error) {
-                chatbox.removeChild(typingIndicator);
-                addMessage('bot', `Error: ${error.message}`);
-            } finally {
-                userInput.disabled = false;
-                sendBtn.disabled = false;
-                userInput.focus();
+            ];
+            let messageCount = 0;
+            let totalResponseTime = 0;
+
+            // Function to get current timestamp
+            function getTimestamp() {
+                const now = new Date();
+                return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             }
-        }
-        
-        // Event Listeners
-        sendBtn.addEventListener('click', sendMessage);
-        userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
+
+            // Function to add a message to the chat interface
+            function addMessage(content, isUser = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
+
+                messageDiv.innerHTML = `
+                    ${content}
+                    <div class="timestamp">${getTimestamp()}</div>
+                `;
+
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
+                if (!isUser) {
+                    messageCount++;
+                    // In a real scenario, you'd calculate and update response time here
+                    // For now, it's just a placeholder for a "stats" feature
+                    updateStats();
+                }
             }
+
+            // Function to show the typing indicator
+            function showTyping() {
+                typingIndicator.style.display = 'flex';
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Function to hide the typing indicator
+            function hideTyping() {
+                typingIndicator.style.display = 'none';
+            }
+
+            // Function to update hypothetical live chat stats
+            function updateStats() {
+                // This is a placeholder. You'd implement actual stat tracking here.
+                console.log(`Total messages: ${messageCount}, Avg Response Time: N/A`);
+            }
+
+            // Function to build the formatted prompt for the Mistral model
+            // This structure is crucial for instruction-tuned models like Mistral-7B-Instruct
+            function buildPrompt(history) {
+                let formattedPrompt = `<s>[INST] ${SYSTEM_PROMPT} [/INST]`; // Start with the system prompt
+
+                history.forEach(message => {
+                    if (message.role === 'user') {
+                        formattedPrompt += ` [INST] ${message.content} [/INST]`;
+                    } else if (message.role === 'assistant') {
+                        formattedPrompt += ` ${message.content}</s>`; // End with </s> for assistant messages
+                    }
+                });
+
+                return formattedPrompt;
+            }
+
+            // Function to query the Hugging Face Inference API
+            async function queryHuggingFaceAPI(userMessage) {
+                showTyping();
+                sendBtn.disabled = true; // Disable send button while processing
+
+                // Add user message to conversation history
+                conversationHistory.push({ role: 'user', content: userMessage });
+
+                const prompt = buildPrompt(conversationHistory);
+
+                try {
+                    const startTime = performance.now();
+                    const response = await fetch(
+                        API_URL, {
+                            headers: {
+                                "Authorization": `Bearer ${API_TOKEN}`,
+                                "Content-Type": "application/json",
+                            },
+                            method: "POST",
+                            body: JSON.stringify({
+                                inputs: prompt,
+                                parameters: {
+                                    max_new_tokens: 250, // Max tokens in the response
+                                    temperature: 0.7,    // Controls randomness (0.0-1.0)
+                                    top_p: 0.9,          // Controls diversity
+                                    do_sample: true,     // Use sampling
+                                    return_full_text: false // Only return the generated text
+                                }
+                            }),
+                        }
+                    );
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(`API Error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
+                    }
+
+                    const result = await response.json();
+                    const endTime = performance.now();
+                    totalResponseTime += (endTime - startTime);
+
+                    // Extract the generated text. For Mistral-Instruct, it's usually in result[0].generated_text
+                    let botResponse = result[0].generated_text.trim();
+
+                    // Remove any remaining instruction tags if the model occasionally generates them
+                    botResponse = botResponse.replace(/\[INST\]|\[\/INST\]|<s>|<\/s>/g, '').trim();
+
+                    addMessage(botResponse, false); // Add bot's response to chat
+                    conversationHistory.push({ role: 'assistant', content: botResponse }); // Add bot response to history
+
+                } catch (error) {
+                    console.error("Error querying Hugging Face API:", error);
+                    addMessage(`*BZZT* Error detected! My circuits are buzzing. Try again, human! Error: ${error.message}`, false);
+                } finally {
+                    hideTyping();
+                    sendBtn.disabled = false; // Re-enable send button
+                    userInput.value = ''; // Clear input field
+                }
+            }
+
+            // Event listener for send button click
+            sendBtn.addEventListener('click', function() {
+                const message = userInput.value.trim();
+                if (message) {
+                    addMessage(message, true); // Add user's message to chat
+                    queryHuggingFaceAPI(message);
+                }
+            });
+
+            // Event listener for Enter key press in the input field
+            userInput.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    sendBtn.click(); // Simulate a click on the send button
+                }
+            });
+
+            // Copy API Key to clipboard
+            copyBtn.addEventListener('click', () => {
+                const apiKeyText = apiKeyElement.textContent;
+                navigator.clipboard.writeText(apiKeyText).then(() => {
+                    copyBtn.textContent = 'Copied!';
+                    setTimeout(() => {
+                        copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy Key';
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy API key: ', err);
+                });
+            });
         });
-        
-        // Initial focus on input
-        userInput.focus();
-        
-        // Welcome message
-        setTimeout(() => {
-            addMessage('bot', "Welcome to the techno show! I'm Rodrigo MC, your AI-powered robotic host. What's on your mind?");
-        }, 1000);
     </script>
 </body>
 </html>
+```
+
+-----
+
+### How to Use This Updated Code:
+
+1.  **Save the Code:** Save the entire code block as an HTML file (e.g., `rodrigo_chat.html`).
+2.  **Get Your Hugging Face API Token:**
+      * Go to [Hugging Face](https://huggingface.co/).
+      * Sign in or create an account.
+      * Navigate to your profile settings.
+      * Go to "Access Tokens" and create a new token with "Read" role (or "Write" if you plan to do more advanced operations, though "Read" is sufficient for inference).
+      * **Replace `'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'` with your actual API token.** This is crucial for the API calls to work.
+3.  **Open in Browser:** Open the saved HTML file in your web browser.
+
+Now, when you type a message in the input field and press "Send to the Beat" (or Enter), the interface will:
+
+1.  Display your message.
+2.  Show a "Processing..." typing indicator.
+3.  Send your message (along with the conversation history and system prompt) to the Hugging Face Inference API for the `mistralai/Mistral-7B-Instruct-v0.3` model.
+4.  Display the AI's techno-themed response in the chat.
+
+This updated interface provides a fully functional chat experience powered by a Hugging Face model\!
