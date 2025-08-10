@@ -373,6 +373,9 @@
              class="robot-image">
     </div>
 
+    <!-- Include Three.js library FIRST -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
     <script>
         // Main Three.js variables
         let scene, camera, renderer;
@@ -381,6 +384,12 @@
         
         // Initialize the scene
         function init() {
+            // Check if Three.js is loaded
+            if (typeof THREE === 'undefined') {
+                console.error('Three.js not loaded!');
+                return;
+            }
+            
             // Create scene
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x000011);
@@ -570,8 +579,5 @@
         // Initialize the scene when the page loads
         window.onload = init;
     </script>
-    
-    <!-- Include Three.js library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </body>
 </html>
