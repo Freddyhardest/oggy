@@ -3,946 +3,581 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rodrigo Techno Host v.1</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Cyberpunk Nexus</title>
     <style>
-        * {
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Orbitron', 'Segoe UI', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow: hidden;
+            background: #0f0f1b;
+            background: -webkit-linear-gradient(135deg, #0f0f1b, #1a1a2e, #16213e);
+            background: -moz-linear-gradient(135deg, #0f0f1b, #1a1a2e, #16213e);
+            background: -o-linear-gradient(135deg, #0f0f1b, #1a1a2e, #16213e);
+            background: linear-gradient(135deg, #0f0f1b, #1a1a2e, #16213e);
+            font-family: 'Courier New', monospace;
+            color: #00ffff;
         }
         
-        :root {
-            --primary-gradient: linear-gradient(135deg, #00ffcc, #a777e3);
-            --user-bubble: linear-gradient(135deg, #a777e3, #00ffcc);
-            --bot-bubble: #1a1a2a;
-            --bg-dark: #0f0f1a;
-            --bg-panel: rgba(15, 15, 25, 0.85);
-            --text-neon: #00ffcc;
-            --text-secondary: #a0a0c0;
-            --input-bg: rgba(20, 20, 35, 0.9);
-            --border-glow: rgba(0, 255, 204, 0.2);
-            --success: #4ade80;
-        }
-        
-        body {
-            background: var(--bg-dark);
-            color: var(--text-neon);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(0, 255, 204, 0.1) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(167, 119, 227, 0.1) 0%, transparent 20%);
-            overflow-x: hidden;
-            animation: pulseBackground 15s infinite linear;
-        }
-        
-        @keyframes pulseBackground {
-            0% { background-size: 100%; }
-            50% { background-size: 110%; }
-            100% { background-size: 100%; }
-        }
-        
-        .container {
-            max-width: 1000px;
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            margin: 0 auto;
+            height: 100%;
+            z-index: 1;
         }
         
-        header {
-            text-align: center;
-            padding: 30px 0 40px;
-            margin-bottom: 20px;
-            position: relative;
-            overflow: hidden;
+        #ui-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
         }
         
-        header h1 {
-            font-size: 3.2rem;
-            margin-bottom: 12px;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            font-weight: 900;
-            letter-spacing: -1px;
-            text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
-        }
-        
-        header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            max-width: 700px;
-            margin: 0 auto;
-            line-height: 1.7;
-            text-shadow: 0 0 5px rgba(0, 255, 204, 0.3);
-        }
-        
-        .chat-container {
-            background: var(--bg-panel);
-            border-radius: 30px;
-            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4), 0 0 0 2px var(--border-glow);
-            backdrop-filter: blur(20px);
-            overflow: hidden;
-            height: 75vh;
-            display: flex;
-            flex-direction: column;
-            transition: all 0.4s ease;
-            border: 1px solid #00ffcc;
-        }
-        
-        .chat-header {
-            padding: 20px 30px;
-            background: rgba(26, 26, 42, 0.9);
-            border-bottom: 2px solid var(--border-glow);
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            position: relative;
-            animation: glowBorder 3s infinite alternate;
-        }
-        
-        @keyframes glowBorder {
-            from { border-color: #00ffcc; }
-            to { border-color: #a777e3; }
-        }
-        
-        .model-indicator {
-            display: flex;
-            align-items: center;
-            background: rgba(0, 255, 204, 0.2);
-            border-radius: 15px;
-            padding: 8px 18px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-shadow: 0 0 3px #00ffcc;
-        }
-        
-        .model-indicator i {
-            margin-right: 10px;
-            color: #a777e3;
-            text-shadow: 0 0 5px #a777e3;
-        }
-        
-        .robot-image {
-            max-width: 150px;
-            max-height: 150px;
-            border: 3px solid #00ffcc;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
-            margin-bottom: 20px;
-            animation: float 4s infinite ease-in-out;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        .chat-messages {
-            flex: 1;
-            padding: 30px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-            scrollbar-width: thin;
-            scrollbar-color: #00ffcc transparent;
-        }
-        
-        .chat-messages::-webkit-scrollbar {
-            width: 10px;
-        }
-        
-        .chat-messages::-webkit-scrollbar-thumb {
-            background: var(--primary-gradient);
-            border-radius: 5px;
-        }
-        
-        .message {
-            max-width: 80%;
-            padding: 20px;
-            border-radius: 20px;
-            position: relative;
-            animation: fadeIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            line-height: 1.7;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-            font-size: 1.05rem;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .user-message {
-            background: var(--user-bubble);
-            align-self: flex-end;
-            border-bottom-right-radius: 5px;
-            color: white;
-            text-shadow: 0 0 2px #00ffcc;
-        }
-        
-        .bot-message {
-            background: var(--bot-bubble);
-            align-self: flex-start;
-            border-bottom-left-radius: 5px;
-            border: 1px solid rgba(0, 255, 204, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .bot-message::before {
-            content: '';
+        .glowing-border {
             position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            height: 3px;
-            background: var(--primary-gradient);
-            animation: scanLine 2s infinite linear;
+            -webkit-box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+            -moz-box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+            box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
         }
         
-        @keyframes scanLine {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+        .top-left {
+            top: 20px;
+            left: 20px;
+            width: 120px;
+            height: 2px;
+            background: #00ffff;
+            background: -webkit-linear-gradient(90deg, #00ffff, transparent);
+            background: -moz-linear-gradient(90deg, #00ffff, transparent);
+            background: -o-linear-gradient(90deg, #00ffff, transparent);
+            background: linear-gradient(90deg, #00ffff, transparent);
         }
         
-        .message .timestamp {
-            font-size: 0.8rem;
-            opacity: 0.8;
-            margin-top: 12px;
-            text-align: right;
-            font-weight: 400;
-            color: #a0a0c0;
+        .top-right {
+            top: 20px;
+            right: 20px;
+            width: 120px;
+            height: 2px;
+            background: #ff00ff;
+            background: -webkit-linear-gradient(90deg, transparent, #ff00ff);
+            background: -moz-linear-gradient(90deg, transparent, #ff00ff);
+            background: -o-linear-gradient(90deg, transparent, #ff00ff);
+            background: linear-gradient(90deg, transparent, #ff00ff);
         }
         
-        .input-area {
-            padding: 25px;
-            background: rgba(26, 26, 42, 0.9);
-            border-top: 2px solid var(--border-glow);
-            display: flex;
-            gap: 20px;
-            position: relative;
-            animation: pulseInput 6s infinite ease-in-out;
+        .bottom-left {
+            bottom: 20px;
+            left: 20px;
+            width: 120px;
+            height: 2px;
+            background: #00ffff;
+            background: -webkit-linear-gradient(90deg, #00ffff, transparent);
+            background: -moz-linear-gradient(90deg, #00ffff, transparent);
+            background: -o-linear-gradient(90deg, #00ffff, transparent);
+            background: linear-gradient(90deg, #00ffff, transparent);
         }
         
-        @keyframes pulseInput {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(0, 255, 204, 0.2); }
-            50% { box-shadow: 0 0 10px 5px rgba(0, 255, 204, 0.2); }
+        .bottom-right {
+            bottom: 20px;
+            right: 20px;
+            width: 120px;
+            height: 2px;
+            background: #ff00ff;
+            background: -webkit-linear-gradient(90deg, transparent, #ff00ff);
+            background: -moz-linear-gradient(90deg, transparent, #ff00ff);
+            background: -o-linear-gradient(90deg, transparent, #ff00ff);
+            background: linear-gradient(90deg, transparent, #ff00ff);
         }
         
-        .input-area input {
-            flex: 1;
-            padding: 18px 28px;
-            border-radius: 18px;
-            border: none;
-            background: var(--input-bg);
-            color: var(--text-neon);
-            font-size: 1.1rem;
-            outline: none;
-            transition: all 0.3s ease;
-            border: 1px solid transparent;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-            text-shadow: 0 0 2px #00ffcc;
+        .title {
+            position: absolute;
+            top: 40px;
+            left: 50%;
+            -webkit-transform: translateX(-50%);
+            -moz-transform: translateX(-50%);
+            -o-transform: translateX(-50%);
+            -ms-transform: translateX(-50%);
+            transform: translateX(-50%);
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-shadow: 0 0 10px #00ffff, 0 0 20px #ff00ff;
+            letter-spacing: 3px;
+            -webkit-animation: pulse 2s infinite;
+            -moz-animation: pulse 2s infinite;
+            -o-animation: pulse 2s infinite;
+            animation: pulse 2s infinite;
         }
         
-        .input-area input:focus {
-            border-color: #a777e3;
-            box-shadow: 0 0 0 4px rgba(167, 119, 227, 0.3);
+        .title-underline {
+            position: absolute;
+            top: 90px;
+            left: 50%;
+            -webkit-transform: translateX(-50%);
+            -moz-transform: translateX(-50%);
+            -o-transform: translateX(-50%);
+            -ms-transform: translateX(-50%);
+            transform: translateX(-50%);
+            width: 400px;
+            height: 2px;
+            background: #00ffff;
+            background: -webkit-linear-gradient(90deg, #00ffff, #ff00ff, #ff00ff, #00ffff);
+            background: -moz-linear-gradient(90deg, #00ffff, #ff00ff, #ff00ff, #00ffff);
+            background: -o-linear-gradient(90deg, #00ffff, #ff00ff, #ff00ff, #00ffff);
+            background: linear-gradient(90deg, #00ffff, #ff00ff, #ff00ff, #00ffff);
+            -webkit-box-shadow: 0 0 10px #00ffff, 0 0 20px #ff00ff;
+            -moz-box-shadow: 0 0 10px #00ffff, 0 0 20px #ff00ff;
+            box-shadow: 0 0 10px #00ffff, 0 0 20px #ff00ff;
         }
         
-        .input-area input::placeholder {
-            color: var(--text-secondary);
-            text-shadow: none;
-        }
-        
-        .input-area button {
-            background: var(--primary-gradient);
-            border: none;
-            color: white;
-            padding: 18px 36px;
-            border-radius: 18px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 6px 20px rgba(0, 255, 204, 0.4);
-            text-shadow: 0 0 5px #00ffcc;
-        }
-        
-        .input-area button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 9px 25px rgba(0, 255, 204, 0.6);
-        }
-        
-        .input-area button:disabled {
-            background: rgba(100, 100, 150, 0.5);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        .typing-indicator {
-            display: flex;
-            align-items: center;
-            padding: 18px 25px;
-            background: var(--bot-bubble);
-            border-radius: 20px;
-            align-self: flex-start;
-            margin-bottom: 20px;
-            display: none;
-            gap: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .typing-indicator span {
-            height: 12px;
-            width: 12px;
-            border-radius: 50%;
-            background: #a777e3;
-            display: inline-block;
-            animation: bounce 1.5s linear infinite;
-        }
-        
-        .typing-indicator span:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-        
-        .typing-indicator span:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-        
-        @keyframes bounce {
-            0%, 60%, 100% { transform: translateY(0); }
-            30% { transform: translateY(-8px); }
-        }
-        
-        .info-box {
-            margin-top: 40px;
-            background: var(--bg-panel);
-            border-radius: 25px;
-            padding: 30px;
-            font-size: 1rem;
-            line-height: 1.8;
-            border: 2px solid var(--border-glow);
-            position: relative;
-            overflow: hidden;
-            animation: fadeInUp 0.6s ease-out;
-        }
-        
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .info-box::before {
-            content: '';
+        .grid-overlay {
             position: absolute;
             top: 0;
             left: 0;
-            right: 0;
-            height: 5px;
-            background: var(--primary-gradient);
-            animation: scanLine 2s infinite linear;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+            background-image: 
+                -webkit-linear-gradient(rgba(0, 255, 255, 0.3) 1px, transparent 1px),
+                -webkit-linear-gradient(90deg, rgba(0, 255, 255, 0.3) 1px, transparent 1px);
+            background-image: 
+                -moz-linear-gradient(rgba(0, 255, 255, 0.3) 1px, transparent 1px),
+                -moz-linear-gradient(90deg, rgba(0, 255, 255, 0.3) 1px, transparent 1px);
+            background-image: 
+                -o-linear-gradient(rgba(0, 255, 255, 0.3) 1px, transparent 1px),
+                -o-linear-gradient(90deg, rgba(0, 255, 255, 0.3) 1px, transparent 1px);
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.3) 1px, transparent 1px);
+            background-size: 40px 40px;
         }
         
-        .info-box h3 {
-            margin-bottom: 20px;
-            color: #a777e3;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            text-shadow: 0 0 8px #a777e3;
+        .scanline {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 255, 255, 0.1);
+            background: -webkit-linear-gradient(rgba(0, 255, 255, 0.1) 0%, transparent 100%);
+            background: -moz-linear-gradient(rgba(0, 255, 255, 0.1) 0%, transparent 100%);
+            background: -o-linear-gradient(rgba(0, 255, 255, 0.1) 0%, transparent 100%);
+            background: linear-gradient(rgba(0, 255, 255, 0.1) 0%, transparent 100%);
+            -webkit-animation: scan 4s linear infinite;
+            -moz-animation: scan 4s linear infinite;
+            -o-animation: scan 4s linear infinite;
+            animation: scan 4s linear infinite;
+            pointer-events: none;
         }
         
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin: 25px 0;
+        .data-panel {
+            position: absolute;
+            bottom: 40px;
+            left: 40px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #00ffff;
+            padding: 15px;
+            -webkit-box-shadow: 0 0 10px #00ffff;
+            -moz-box-shadow: 0 0 10px #00ffff;
+            box-shadow: 0 0 10px #00ffff;
+            pointer-events: auto;
         }
         
-        .feature-card {
-            background: rgba(26, 26, 42, 0.7);
-            border-radius: 18px;
-            padding: 25px;
-            border: 1px solid rgba(0, 255, 204, 0.3);
-            transition: transform 0.3s ease;
+        .glitch-text {
+            position: absolute;
+            top: calc(50% - 200px);
+            left: 40px;
+            color: #ff00ff;
+            font-size: 1rem;
+            line-height: 1.8;
+            text-shadow: 0 0 5px #ff00ff;
         }
         
-        .feature-card:hover {
-            transform: translateY(-5px);
+        .robot-image {
+            position: absolute;
+            top: 50%;
+            right: 40px;
+            -webkit-transform: translateY(-50%);
+            -moz-transform: translateY(-50%);
+            -o-transform: translateY(-50%);
+            -ms-transform: translateY(-50%);
+            transform: translateY(-50%);
+            width: 250px;
+            -webkit-filter: drop-shadow(0 0 10px #00ffff) drop-shadow(0 0 20px #ff00ff);
+            filter: drop-shadow(0 0 10px #00ffff) drop-shadow(0 0 20px #ff00ff);
+            -webkit-animation: float 6s ease-in-out infinite;
+            -moz-animation: float 6s ease-in-out infinite;
+            -o-animation: float 6s ease-in-out infinite;
+            animation: float 6s ease-in-out infinite;
+            z-index: 3;
         }
         
-        .feature-card i {
-            font-size: 2rem;
-            margin-bottom: 18px;
-            color: #00ffcc;
-            text-shadow: 0 0 10px #00ffcc;
+        @-webkit-keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
         }
         
-        .feature-card h4 {
-            margin-bottom: 12px;
-            font-size: 1.2rem;
-            text-shadow: 0 0 3px #00ffcc;
+        @-moz-keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
         }
         
-        .api-info {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 18px;
-            border-radius: 15px;
-            margin: 25px 0;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            align-items: center;
-            animation: pulse 4s infinite ease-in-out;
+        @-o-keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
         }
         
-        .api-info code {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 10px 18px;
-            border-radius: 10px;
-            font-family: 'Fira Code', monospace;
-            font-size: 0.95rem;
-            word-break: break-all;
-            flex: 1;
-            color: #00ffcc;
-            text-shadow: 0 0 2px #00ffcc;
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
         }
         
-        .warning {
-            background: rgba(255, 165, 0, 0.2);
-            border-left: 5px solid orange;
-            padding: 18px;
-            border-radius: 0 10px 10px 0;
-            margin: 25px 0;
-            color: #ffcc00;
-            text-shadow: 0 0 3px #ffcc00;
+        @-webkit-keyframes scan {
+            0% { -webkit-transform: translateY(-100%); transform: translateY(-100%); }
+            100% { -webkit-transform: translateY(100%); transform: translateY(100%); }
         }
         
-        .powered-by {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-top: 15px;
-            opacity: 0.9;
-            color: #a0a0c0;
+        @-moz-keyframes scan {
+            0% { -moz-transform: translateY(-100%); transform: translateY(-100%); }
+            100% { -moz-transform: translateY(100%); transform: translateY(100%); }
         }
         
-        @media (max-width: 768px) {
-            .chat-container {
-                height: 70vh;
-            }
-            
-            .message {
-                max-width: 90%;
-            }
-            
-            .input-area {
-                flex-direction: column;
-            }
-            
-            .input-area button {
-                width: 100%;
-            }
-            
-            header h1 {
-                font-size: 2.5rem;
-            }
-            
-            header p {
-                font-size: 1.1rem;
-            }
-            
-            .robot-image {
-                max-width: 120px;
-                max-height: 120px;
-            }
+        @-o-keyframes scan {
+            0% { -o-transform: translateY(-100%); transform: translateY(-100%); }
+            100% { -o-transform: translateY(100%); transform: translateY(100%); }
         }
         
-        @media (max-width: 480px) {
-            .chat-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
-            
-            .model-indicator {
-                align-self: stretch;
-            }
-            
-            .input-area input {
-                padding: 15px 20px;
-            }
-            
-            .input-area button {
-                padding: 15px 28px;
-            }
+        @keyframes scan {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+        
+        @-webkit-keyframes float {
+            0% { -webkit-transform: translateY(-50%); transform: translateY(-50%); }
+            50% { -webkit-transform: translateY(calc(-50% - 20px)); transform: translateY(calc(-50% - 20px)); }
+            100% { -webkit-transform: translateY(-50%); transform: translateY(-50%); }
+        }
+        
+        @-moz-keyframes float {
+            0% { -moz-transform: translateY(-50%); transform: translateY(-50%); }
+            50% { -moz-transform: translateY(calc(-50% - 20px)); transform: translateY(calc(-50% - 20px)); }
+            100% { -moz-transform: translateY(-50%); transform: translateY(-50%); }
+        }
+        
+        @-o-keyframes float {
+            0% { -o-transform: translateY(-50%); transform: translateY(-50%); }
+            50% { -o-transform: translateY(calc(-50% - 20px)); transform: translateY(calc(-50% - 20px)); }
+            100% { -o-transform: translateY(-50%); transform: translateY(-50%); }
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(-50%); }
+            50% { transform: translateY(calc(-50% - 20px)); }
+            100% { transform: translateY(-50%); }
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+            -webkit-animation: blink 1.5s infinite;
+            -moz-animation: blink 1.5s infinite;
+            -o-animation: blink 1.5s infinite;
+            animation: blink 1.5s infinite;
+        }
+        
+        .online {
+            background-color: #00ff00;
+            -webkit-box-shadow: 0 0 5px #00ff00;
+            -moz-box-shadow: 0 0 5px #00ff00;
+            box-shadow: 0 0 5px #00ff00;
+        }
+        
+        .active {
+            background-color: #ff00ff;
+            -webkit-box-shadow: 0 0 5px #ff00ff;
+            -moz-box-shadow: 0 0 5px #ff00ff;
+            box-shadow: 0 0 5px #ff00ff;
+        }
+        
+        @-webkit-keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        @-moz-keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        @-o-keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .typing-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background-color: #ff00ff;
+            margin-left: 4px;
+            -webkit-animation: blink 1s infinite;
+            -moz-animation: blink 1s infinite;
+            -o-animation: blink 1s infinite;
+            animation: blink 1s infinite;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1><i class="fas fa-robot"></i> Rodrigo Techno Host v.1</h1>
-            <p>Your futuristic AI MC powered by Mistral-7B-Instruct-v0.3 from Hugging Face, dropping beats and answers!</p>
-            <div class="powered-by">
-                <img src="https://huggingface.co/front/assets/huggingface_logo-noborder.svg" alt="Hugging Face" width="24" height="24" style="filter: invert(1); opacity: 0.9;">
-                <span>Powered by Hugging Face Inference API</span>
-            </div>
-        </header>
+    <div id="canvas-container"></div>
+    
+    <div id="ui-overlay">
+        <div class="glowing-border top-left"></div>
+        <div class="glowing-border top-right"></div>
+        <div class="glowing-border bottom-left"></div>
+        <div class="glowing-border bottom-right"></div>
         
-        <div class="chat-container">
-            <div class="chat-header">
-                <img src="https://iili.io/F04EYzP.png" alt="Rodrigo Techno Host v.1" class="robot-image">
-                <div class="model-indicator">
-                    <i class="fas fa-microchip"></i>
-                    <span>mistralai/Mistral-7B-Instruct-v0.3</span>
-                </div>
-            </div>
-            
-            <div class="chat-messages" id="chat-messages">
-                <div class="message bot-message">
-                    *BZZT* Greetings, humans! I’m Rodrigo Techno Host v.1, your AI MC from the future. Drop your questions, and let’s vibe! *WUB WUB*
-                    <div class="timestamp">System Online</div>
-                </div>
-                
-                <div class="typing-indicator" id="typing-indicator">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span>Processing... *BEAT DROP INCOMING*</span>
-                </div>
-            </div>
-            
-            <div class="input-area">
-                <input type="text" id="user-input" placeholder="Type your message, human... *WUB*" autocomplete="off" autofocus>
-                <button id="send-btn">
-                    <i class="fas fa-paper-plane"></i> Send to the Beat
-                </button>
-            </div>
+        <div class="title">CYBERPUNK NEXUS</div>
+        <div class="title-underline"></div>
+        
+        <div class="grid-overlay"></div>
+        <div class="scanline"></div>
+        
+        <div class="data-panel">
+            <div><span class="status-indicator online"></span>SYSTEM STATUS: ONLINE</div>
+            <div><span class="status-indicator active"></span>NEURAL LINK: ACTIVE</div>
         </div>
         
-        <div class="info-box">
-            <h3><i class="fas fa-star"></i> Techno Host Features</h3>
-            <p>Experience the ultimate AI MC with cutting-edge enhancements:</p>
-            
-            <div class="features-grid">
-                <div class="feature-card">
-                    <i class="fas fa-bolt"></i>
-                    <h4>Beat Sync Responses</h4>
-                    <p>Replies sync with a virtual techno beat for an immersive experience!</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-microphone"></i>
-                    <h4>Voice Modulation</h4>
-                    <p>Robotic voice synthesis with adjustable pitch and effects.</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-chart-line"></i>
-                    <h4>Live Chat Stats</h4>
-                    <p>Real-time stats on message count and response time.</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-paint-brush"></i>
-                    <h4>Futuristic UI</h4>
-                    <p>Neon-lit, animated design with glassmorphism and glow effects.</p>
-                </div>
-            </div>
-            
-            <div class="api-info">
-                <strong>API Config:</strong>
-                <code id="api-key">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</code>
-                <button id="copy-btn" style="background: rgba(0, 255, 204, 0.2); border: none; color: #a0a0c0; padding: 10px 18px; border-radius: 10px; cursor: pointer;">
-                    <i class="fas fa-copy"></i> Copy Key
-                </button>
-            </div>
-            
-            <div class="warning">
-                <strong><i class="fas fa-exclamation-triangle"></i> Caution:</strong> Secure API keys server-side for production. This is a demo frontend.
-            </div>
-            
-            <p><strong>System Prompt:</strong> "You are Rodrigo Techno Host v.1, a futuristic techno MC robot with a vibrant personality. Respond with techno-inspired slang, sound effects (*WUB WUB*, *BZZT*), and engaging energy. If unsure, guide users with a beat-filled twist!"</p>
+        <div class="glitch-text">
+            <div>>> INITIATING CYBERSPACE PROTOCOL</div>
+            <div>>> ESTABLISHING QUANTUM LINK</div>
+            <div>>> ACCESSING NEURAL NETWORK</div>
+            <div>>> LOADING<span class="typing-cursor"></span></div>
         </div>
+        
+        <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fpngimg.com%2Fuploads%2Frobot%2Frobot_PNG3.png&f=1&nofb=1&ipt=f2b2297c75be6d0d200ec97ee6af8df06bf55f2fbcde42ba289e09b75faba3ef" 
+             alt="Cyberpunk Robot" 
+             class="robot-image">
     </div>
+
+    <!-- Include Three.js library FIRST -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const chatMessages = document.getElementById('chat-messages');
-            const userInput = document.getElementById('user-input');
-            const sendBtn = document.getElementById('send-btn');
-            const typingIndicator = document.getElementById('typing-indicator');
-            const apiKeyElement = document.getElementById('api-key');
-            const copyBtn = document.getElementById('copy-btn');
+        // Main Three.js variables
+        let scene, camera, renderer;
+        let wireframeSpheres = [];
+        let starfield, fractalLandscape;
+        
+        // Initialize the scene
+        function init() {
+            // Check if Three.js is loaded
+            if (typeof THREE === 'undefined') {
+                console.error('Three.js not loaded!');
+                return;
+            }
             
-            // API configuration
-            const API_TOKEN = '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';
-            const MODEL_ID = 'mistralai/Mistral-7B-Instruct-v0.3';
-            const API_URL = `https://api-inference.huggingface.co/models/${MODEL_ID}`;
+            // Create scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x000011);
+            scene.fog = new THREE.Fog(0x000022, 20, 100);
             
-            // System prompt configuration
-            const SYSTEM_PROMPT = "You are Rodrigo Techno Host v.1, a futuristic techno MC robot with a vibrant personality. Respond with techno-inspired slang, sound effects (*WUB WUB*, *BZZT*), and engaging energy. If unsure, guide users with a beat-filled twist!";
+            // Create camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 15;
             
-            // Conversation history
-            let conversationHistory = [
-                {
-                    role: 'assistant',
-                    content: "*BZZT* Greetings, humans! I’m Rodrigo Techno Host v.1, your AI MC from the future. Drop your questions, and let’s vibe! *WUB WUB*"
-                }
+            // Create renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+            
+            // Add lighting
+            const ambientLight = new THREE.AmbientLight(0x222255);
+            scene.add(ambientLight);
+            
+            const pointLight1 = new THREE.PointLight(0x00ffff, 1, 100);
+            pointLight1.position.set(10, 10, 10);
+            scene.add(pointLight1);
+            
+            const pointLight2 = new THREE.PointLight(0xff00ff, 1, 100);
+            pointLight2.position.set(-10, -10, -10);
+            scene.add(pointLight2);
+            
+            // Create objects
+            createWireframeSpheres();
+            createFractalLandscape();
+            createStarfield();
+            
+            // Handle window resize
+            window.addEventListener('resize', onWindowResize);
+            
+            // Start animation loop
+            animate();
+        }
+        
+        // Create wireframe spheres
+        function createWireframeSpheres() {
+            const positions = [
+                [5, 2, 0],
+                [-5, -2, 3],
+                [0, 4, -5],
+                [3, -3, -3]
             ];
-            let messageCount = 0;
-            let totalResponseTime = 0;
-
-            // Format timestamp
-            function getTimestamp() {
-                const now = new Date();
-                return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            }
             
-            // Add message to chat
-            function addMessage(content, isUser = false) {
-                const messageDiv = document.createElement('div');
-                messageDiv.classList.add('message');
-                messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
-                
-                messageDiv.innerHTML = `
-                    ${content}
-                    <div class="timestamp">${getTimestamp()}</div>
-                `;
-                
-                chatMessages.appendChild(messageDiv);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-                if (!isUser) {
-                    messageCount++;
-                    updateStats();
-                }
-            }
+            const scales = [1.5, 1, 2, 1.2];
+            const speeds = [0.01, 0.015, 0.008, 0.012];
             
-            // Show typing indicator
-            function showTyping() {
-                typingIndicator.style.display = 'flex';
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }
-            
-            // Hide typing indicator
-            function hideTyping() {
-                typingIndicator.style.display = 'none';
-            }
-            
-            // Build formatted prompt for Mistral model
-            function buildPrompt(history) {
-                let fullPrompt = '';
-                
-                history.forEach((entry, index) => {
-                    if (entry.role === 'user') {
-                        if (index === 0) {
-                            fullPrompt += `[INST] ${SYSTEM_PROMPT}\n\n${entry.content} [/INST]`;
-                        } else {
-                            fullPrompt += `[INST] ${entry.content} [/INST]`;
-                        }
-                    } else if (entry.role === 'assistant') {
-                        fullPrompt += `${entry.content}</s>`;
-                    }
+            for (let i = 0; i < 4; i++) {
+                const geometry = new THREE.SphereGeometry(1, 32, 32);
+                const material = new THREE.MeshBasicMaterial({
+                    color: 0x00ffff,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.7
                 });
                 
-                return fullPrompt;
+                const sphere = new THREE.Mesh(geometry, material);
+                sphere.position.set(...positions[i]);
+                sphere.scale.set(scales[i], scales[i], scales[i]);
+                scene.add(sphere);
+                
+                wireframeSpheres.push({
+                    mesh: sphere,
+                    speed: speeds[i]
+                });
+            }
+        }
+        
+        // Create fractal landscape
+        function createFractalLandscape() {
+            const geometry = new THREE.PlaneGeometry(20, 20, 128, 128);
+            const vertices = geometry.attributes.position.array;
+            
+            for (let i = 0; i < vertices.length; i += 3) {
+                const x = vertices[i];
+                const z = vertices[i + 1];
+                vertices[i + 2] = Math.sin(x * 0.5) * Math.cos(z * 0.5) * 2 +
+                                  Math.sin(x * 0.2) * Math.cos(z * 0.2) * 3 +
+                                  Math.sin(x * 0.8) * Math.cos(z * 0.8) * 1;
             }
             
-            // Send message to API
-            async function sendToHuggingFace(message) {
-                showTyping();
-                const startTime = performance.now();
+            geometry.computeVertexNormals();
+            
+            const material = new THREE.MeshStandardMaterial({
+                color: 0xff00ff,
+                wireframe: true,
+                emissive: 0xff00ff,
+                emissiveIntensity: 0.3,
+                transparent: true,
+                opacity: 0.8
+            });
+            
+            fractalLandscape = new THREE.Mesh(geometry, material);
+            fractalLandscape.position.set(0, -5, 0);
+            fractalLandscape.rotation.x = -Math.PI / 2;
+            scene.add(fractalLandscape);
+        }
+        
+        // Create starfield
+        function createStarfield() {
+            const count = 2000;
+            const positions = new Float32Array(count * 3);
+            const colors = new Float32Array(count * 3);
+            
+            for (let i = 0; i < count; i++) {
+                positions[i * 3] = (Math.random() - 0.5) * 100;
+                positions[i * 3 + 1] = (Math.random() - 0.5) * 100;
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 100;
                 
-                conversationHistory.push({
-                    role: 'user',
-                    content: message
-                });
+                colors[i * 3] = Math.random() > 0.5 ? 1 : 0;
+                colors[i * 3 + 1] = Math.random() * 0.5;
+                colors[i * 3 + 2] = Math.random() > 0.5 ? 1 : 0;
+            }
+            
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            
+            const material = new THREE.PointsMaterial({
+                size: 0.1,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.8,
+                sizeAttenuation: true
+            });
+            
+            starfield = new THREE.Points(geometry, material);
+            scene.add(starfield);
+        }
+        
+        // Handle window resize
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Rotate wireframe spheres
+            wireframeSpheres.forEach(sphere => {
+                sphere.mesh.rotation.x += sphere.speed;
+                sphere.mesh.rotation.y += sphere.speed;
+                sphere.mesh.rotation.z += sphere.speed;
+            });
+            
+            // Rotate fractal landscape
+            if (fractalLandscape) {
+                fractalLandscape.rotation.z += 0.002;
+            }
+            
+            // Animate starfield
+            if (starfield) {
+                starfield.rotation.x += 0.0005;
+                starfield.rotation.y += 0.0005;
                 
-                const prompt = buildPrompt(conversationHistory);
-                
-                try {
-                    const response = await fetch(API_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${API_TOKEN}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            inputs: prompt,
-                            parameters: {
-                                max_new_tokens: 1024,
-                                temperature: 0.7,
-                                return_full_text: false,
-                                stop_sequences: ['</s>']
-                            }
-                        })
-                    });
+                const positions = starfield.geometry.attributes.position.array;
+                for (let i = 0; i < positions.length; i += 3) {
+                    const distance = Math.sqrt(
+                        positions[i] ** 2 + 
+                        positions[i + 1] ** 2 + 
+                        positions[i + 2] ** 2
+                    );
                     
-                    if (!response.ok) throw new Error(`API Error: ${response.status}`);
-                    
-                    const data = await response.json();
-                    if (data.error) throw new Error(data.error);
-                    
-                    const generatedText = data[0]?.generated_text || "*BZZT* Error in the matrix! Try again, human! *WUB*";
-                    conversationHistory.push({ role: 'assistant', content: generatedText });
-                    addMessage(generatedText, false);
-                    
-                } catch (error) {
-                    console.error('API Error:', error);
-                    let errorMessage = '*BZZT* System glitch detected! ';
-                    if (error.message.includes('loading')) {
-                        errorMessage += 'Model loading, retry in 10-20 secs! *WUB*';
+                    if (distance > 50) {
+                        positions[i] = (Math.random() - 0.5) * 10;
+                        positions[i + 1] = (Math.random() - 0.5) * 10;
+                        positions[i + 2] = (Math.random() - 0.5) * 10;
                     } else {
-                        errorMessage += 'Drop that beat again, please! *WUB WUB*';
+                        positions[i] *= 1.001;
+                        positions[i + 1] *= 1.001;
+                        positions[i + 2] *= 1.001;
                     }
-                    addMessage(errorMessage, false);
-                    conversationHistory.pop();
-                } finally {
-                    const endTime = performance.now();
-                    totalResponseTime += (endTime - startTime);
-                    hideTyping();
                 }
+                starfield.geometry.attributes.position.needsUpdate = true;
             }
             
-            // Handle user input
-            function handleUserInput() {
-                const message = userInput.value.trim();
-                if (message) {
-                    addMessage(message, true);
-                    userInput.value = '';
-                    sendToHuggingFace(message);
-                }
-            }
-            
-            // Update live chat stats
-            function updateStats() {
-                const avgResponseTime = totalResponseTime / messageCount || 0;
-                console.log(`Messages: ${messageCount}, Avg Response Time: ${avgResponseTime.toFixed(2)}ms`);
-            }
-            
-            // Event listeners
-            sendBtn.addEventListener('click', handleUserInput);
-            userInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') handleUserInput();
-            });
-            
-            copyBtn.addEventListener('click', () => {
-                navigator.clipboard.writeText(API_TOKEN)
-                    .then(() => {
-                        const originalText = copyBtn.innerHTML;
-                        copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-                        setTimeout(() => { copyBtn.innerHTML = originalText; }, 2000);
-                    })
-                    .catch(err => console.error('Failed to copy: ', err));
-            });
-        });
+            renderer.render(scene, camera);
+        }
+        
+        // Initialize the scene when the page loads
+        window.onload = init;
     </script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Hardware Challenges for Dual RTX 5070 Setup</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f5f5f5;
-            font-family: 'Courier New', Courier, monospace;
-            padding: 20px;
-        }
-        .table-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .table {
-            background-color: #fff;
-            border: 1px solid #ddd;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            font-size: 0.7em; /* Reduce text size to 70% */
-        }
-        th, td {
-            text-align: left;
-            vertical-align: middle;
-            padding: 10px;
-        }
-        th {
-            background-color: #e9ecef;
-            color: #333;
-        }
-        td {
-            color: #444;
-        }
-        .table-responsive {
-            border-radius: 5px;
-            overflow-x: auto;
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333;
-        }
-        h2, h3 {
-            color: #333;
-            margin-top: 30px;
-        }
-        .note {
-            text-align: center;
-            font-style: italic;
-            margin-bottom: 20px;
-            color: #555;
-        }
-        .recommendations {
-            margin-top: 20px;
-            font-size: 0.9em;
-        }
-        a {
-            color: #007bff;
-            text-decoration: none;
-            word-break: break-all;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body>
-    <div class="container table-container">
-        <h1>Hardware Problem: PC Build with Dual Graphics Cards</h1>
-        <p class="note">Note: Advice is sought for hardware setup only, focusing on optimizing the dual RTX 5070 configuration with the Gigabyte X870 AORUS ELITE WIFI7 ICE and Ryzen 9 9900X.</p>
-
-        <h2>Hardware Challenges</h2>
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover">
-                <thead>
-                    <tr>
-                        <th>Challenge</th>
-                        <th>Description</th>
-                        <th>Recommendation</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>PCIe Lane Sharing</td>
-                        <td>Each RTX 5070 operates at PCIe 5.0 x8, but using chipset-driven M.2 slots (e.g., M2D_SB) may reduce GPU bandwidth, impacting performance for high-bandwidth workloads like AI or 4K gaming.</td>
-                        <td>Consult the motherboard manual to prioritize M.2 slots (e.g., M2A_CPU, M2B_CPU) that don’t share lanes with the PCIe x16 slot. Avoid populating M2D_SB if using both GPUs [<a href="https://lanoc.org/review/motherboards/gigabyte-x870-aorus-elite-wifi7-start=6">https://lanoc.org/review/motherboards/gigabyte-x870-aorus-elite-wifi7-start=6</a>].</td>
-                    </tr>
-                    <tr>
-                        <td>Limited Expansion</td>
-                        <td>The X870 chipset has fewer PCIe lanes and slots (1x PCIe 5.0 x16, 1x PCIe 4.0 x4, 1x PCIe 3.0 x2), limiting expansion for additional GPUs or peripherals.</td>
-                        <td>Plan peripheral usage carefully. Use only one additional M.2 SSD (preferably in M2A_CPU) to preserve GPU lanes. Consider X870E models for more lanes if needed [<a href="https://lanoc.org/review/motherboards/gigabyte-x870-aorus-elite-wifi7-start=6">https://lanoc.org/review/motherboards/gigabyte-x870-aorus-elite-wifi7-start=6</a>].</td>
-                    </tr>
-                    <tr>
-                        <td>Thermal Design</td>
-                        <td>Dual RTX 5070s generate significant heat, especially in close proximity, potentially causing thermal throttling under load.</td>
-                        <td>Ensure optimal case airflow with additional fans or GPU spacers. Monitor GPU and VRM temperatures (up to 65°C reported). Use the M.2 Thermal Guard L heatsink for the primary SSD [<a href="https://www.tweaktown.com/reviews/10860/g/gigabyte-x870-aorus-elite-wifi7-motherboard/index.html">https://www.tweaktown.com/reviews/10860/g/gigabyte-x870-aorus-elite-wifi7-motherboard/index.html</a>].</td>
-                    </tr>
-                    <tr>
-                        <td>Power Supply</td>
-                        <td>Two RTX 5070s and a Ryzen 9 9900X require significant power (up to 300W for CPU alone). A subpar PSU risks instability or shutdowns.</td>
-                        <td>Use a 1200W 80+ Platinum PSU with PCIe 5.0 12VHPWR connectors. Verify PSU compatibility with dual GPUs [<a href="https://www.youtube.com/watch?v=d0VESw_HN4">https://www.youtube.com/watch?v=d0VESw_HN4</a>].</td>
-                    </tr>
-                    <tr>
-                        <td>Single-Channel RAM</td>
-                        <td>The build uses a single 32GB DDR5 SODIMM, reducing memory bandwidth and impacting performance for AI and workstation tasks.</td>
-                        <td>Upgrade to dual-channel DDR5 (2x32GB) for optimal performance. Use AMD EXPO profiles for up to 8000MT/s [<a href="https://www.youtube.com/watch?v=rIZYSUMkgLo">https://www.youtube.com/watch?v=rIZYSUMkgLo</a>].</td>
-                    </tr>
-                    <tr>
-                        <td>Motherboard Stability/BIOS Issues</td>
-                        <td>Initial BIOS versions may have PCIe lane or compatibility issues with Ryzen 9000 series CPUs and dual GPUs.</td>
-                        <td>Update to the latest BIOS (e.g., F3a or later) before OS/GPU installation to fix PCIe lane distribution and CPU support [<a href="https://lanoc.org/review/motherboards/gigabyte-x870-aorus-elite-wifi7-start=6">https://lanoc.org/review/motherboards/gigabyte-x870-aorus-elite-wifi7-start=6</a>].</td>
-                    </tr>
-                    <tr>
-                        <td>USB/SATA Port Limitations</td>
-                        <td>Heavy use of USB4 or SATA ports may compete for chipset bandwidth, potentially disabling ports or reducing performance.</td>
-                        <td>Limit USB4 and SATA usage. Prioritize USB 3.2 Gen 2x2 for high-speed devices. Check motherboard manual for port allocation [<a href="https://www.tweaktown.com/reviews/10860/g/gigabyte-x870-aorus-elite-wifi7-motherboard/index.html">https://www.tweaktown.com/reviews/10860/g/gigabyte-x870-aorus-elite-wifi7-motherboard/index.html</a>].</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <h2>Context: Prompt To Program Specialised AI Using This Hardware</h2>
-        <h3>This hardware is to develop an AI Prompt to Application Website</h3>
-        <p>The dual RTX 5070 setup, paired with the Ryzen 9 9900X and Gigabyte X870 AORUS ELITE WIFI7 ICE, provides significant computational power for developing an AI-driven prompt-to-application website. The following table lists transformer models suitable for computing semantic similarities between code snippets, leveraging the hardware's capabilities for training or inference.</p>
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover">
-                <thead>
-                    <tr>
-                        <th>Model</th>
-                        <th>Accuracy (Code)</th>
-                        <th>Efficiency (Browser)</th>
-                        <th>Scalability</th>
-                        <th>Integration Ease</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>CodeBERT</td>
-                        <td>High</td>
-                        <td>Low</td>
-                        <td>Moderate</td>
-                        <td>Moderate</td>
-                    </tr>
-                    <tr>
-                        <td>GraphCodeBERT</td>
-                        <td>Very High</td>
-                        <td>Very Low</td>
-                        <td>Moderate</td>
-                        <td>Complex</td>
-                    </tr>
-                    <tr>
-                        <td>UniXcoder</td>
-                        <td>High</td>
-                        <td>Low</td>
-                        <td>Moderate</td>
-                        <td>Moderate</td>
-                    </tr>
-                    <tr>
-                        <td>all-MiniLM-L6-v2</td>
-                        <td>Moderate*</td>
-                        <td>High</td>
-                        <td>High</td>
-                        <td>Easy</td>
-                    </tr>
-                    <tr>
-                        <td>BERT</td>
-                        <td>Low*</td>
-                        <td>Low</td>
-                        <td>Moderate</td>
-                        <td>Moderate</td>
-                    </tr>
-                    <tr>
-                        <td>USE Lite</td>
-                        <td>Moderate</td>
-                        <td>High</td>
-                        <td>Moderate</td>
-                        <td>Easy</td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="5" class="text-start">
-                            <small>*Requires fine-tuning for code-specific tasks.</small>
-                        </td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-        <div class="recommendations">
-            <p><strong>Suggested Improvements for Large, Diverse Snippets:</strong> To optimize transformer models for large and diverse code snippets in the AI Prompt to Application Website, prioritize fine-tuning CodeBERT or UniXcoder, as they demonstrate high accuracy for code-related tasks. Utilize distributed training across both RTX 5070 GPUs to handle large datasets efficiently, leveraging frameworks like PyTorch with DataParallel or Horovod. Implement mixed precision training to reduce memory usage and speed up training, taking advantage of the GPUs' Tensor Cores. Preprocess diverse snippets by standardizing code syntax and splitting large inputs into manageable chunks to improve model performance and scalability.</p>
-        </div>
-    </div>
 </body>
 </html>
