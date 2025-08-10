@@ -9,6 +9,10 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
+            background: #0f0f1b;
+            background: -webkit-linear-gradient(135deg, #0f0f1b, #1a1a2e, #16213e);
+            background: -moz-linear-gradient(135deg, #0f0f1b, #1a1a2e, #16213e);
+            background: -o-linear-gradient(135deg, #0f0f1b, #1a1a2e, #16213e);
             background: linear-gradient(135deg, #0f0f1b, #1a1a2e, #16213e);
             font-family: 'Courier New', monospace;
             color: #00ffff;
@@ -35,6 +39,8 @@
         
         .glowing-border {
             position: absolute;
+            -webkit-box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+            -moz-box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
             box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
         }
         
@@ -43,6 +49,10 @@
             left: 20px;
             width: 120px;
             height: 2px;
+            background: #00ffff;
+            background: -webkit-linear-gradient(90deg, #00ffff, transparent);
+            background: -moz-linear-gradient(90deg, #00ffff, transparent);
+            background: -o-linear-gradient(90deg, #00ffff, transparent);
             background: linear-gradient(90deg, #00ffff, transparent);
         }
         
@@ -51,6 +61,10 @@
             right: 20px;
             width: 120px;
             height: 2px;
+            background: #ff00ff;
+            background: -webkit-linear-gradient(90deg, transparent, #ff00ff);
+            background: -moz-linear-gradient(90deg, transparent, #ff00ff);
+            background: -o-linear-gradient(90deg, transparent, #ff00ff);
             background: linear-gradient(90deg, transparent, #ff00ff);
         }
         
@@ -59,6 +73,10 @@
             left: 20px;
             width: 120px;
             height: 2px;
+            background: #00ffff;
+            background: -webkit-linear-gradient(90deg, #00ffff, transparent);
+            background: -moz-linear-gradient(90deg, #00ffff, transparent);
+            background: -o-linear-gradient(90deg, #00ffff, transparent);
             background: linear-gradient(90deg, #00ffff, transparent);
         }
         
@@ -67,6 +85,10 @@
             right: 20px;
             width: 120px;
             height: 2px;
+            background: #ff00ff;
+            background: -webkit-linear-gradient(90deg, transparent, #ff00ff);
+            background: -moz-linear-gradient(90deg, transparent, #ff00ff);
+            background: -o-linear-gradient(90deg, transparent, #ff00ff);
             background: linear-gradient(90deg, transparent, #ff00ff);
         }
         
@@ -74,11 +96,18 @@
             position: absolute;
             top: 40px;
             left: 50%;
+            -webkit-transform: translateX(-50%);
+            -moz-transform: translateX(-50%);
+            -o-transform: translateX(-50%);
+            -ms-transform: translateX(-50%);
             transform: translateX(-50%);
             font-size: 2.5rem;
             font-weight: bold;
             text-shadow: 0 0 10px #00ffff, 0 0 20px #ff00ff;
             letter-spacing: 3px;
+            -webkit-animation: pulse 2s infinite;
+            -moz-animation: pulse 2s infinite;
+            -o-animation: pulse 2s infinite;
             animation: pulse 2s infinite;
         }
         
@@ -86,10 +115,20 @@
             position: absolute;
             top: 90px;
             left: 50%;
+            -webkit-transform: translateX(-50%);
+            -moz-transform: translateX(-50%);
+            -o-transform: translateX(-50%);
+            -ms-transform: translateX(-50%);
             transform: translateX(-50%);
             width: 400px;
             height: 2px;
+            background: #00ffff;
+            background: -webkit-linear-gradient(90deg, #00ffff, #ff00ff, #ff00ff, #00ffff);
+            background: -moz-linear-gradient(90deg, #00ffff, #ff00ff, #ff00ff, #00ffff);
+            background: -o-linear-gradient(90deg, #00ffff, #ff00ff, #ff00ff, #00ffff);
             background: linear-gradient(90deg, #00ffff, #ff00ff, #ff00ff, #00ffff);
+            -webkit-box-shadow: 0 0 10px #00ffff, 0 0 20px #ff00ff;
+            -moz-box-shadow: 0 0 10px #00ffff, 0 0 20px #ff00ff;
             box-shadow: 0 0 10px #00ffff, 0 0 20px #ff00ff;
         }
         
@@ -100,6 +139,15 @@
             width: 100%;
             height: 100%;
             opacity: 0.1;
+            background-image: 
+                -webkit-linear-gradient(rgba(0, 255, 255, 0.3) 1px, transparent 1px),
+                -webkit-linear-gradient(90deg, rgba(0, 255, 255, 0.3) 1px, transparent 1px);
+            background-image: 
+                -moz-linear-gradient(rgba(0, 255, 255, 0.3) 1px, transparent 1px),
+                -moz-linear-gradient(90deg, rgba(0, 255, 255, 0.3) 1px, transparent 1px);
+            background-image: 
+                -o-linear-gradient(rgba(0, 255, 255, 0.3) 1px, transparent 1px),
+                -o-linear-gradient(90deg, rgba(0, 255, 255, 0.3) 1px, transparent 1px);
             background-image: 
                 linear-gradient(rgba(0, 255, 255, 0.3) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0, 255, 255, 0.3) 1px, transparent 1px);
@@ -112,7 +160,14 @@
             left: 0;
             width: 100%;
             height: 100%;
+            background: rgba(0, 255, 255, 0.1);
+            background: -webkit-linear-gradient(rgba(0, 255, 255, 0.1) 0%, transparent 100%);
+            background: -moz-linear-gradient(rgba(0, 255, 255, 0.1) 0%, transparent 100%);
+            background: -o-linear-gradient(rgba(0, 255, 255, 0.1) 0%, transparent 100%);
             background: linear-gradient(rgba(0, 255, 255, 0.1) 0%, transparent 100%);
+            -webkit-animation: scan 4s linear infinite;
+            -moz-animation: scan 4s linear infinite;
+            -o-animation: scan 4s linear infinite;
             animation: scan 4s linear infinite;
             pointer-events: none;
         }
@@ -124,15 +179,16 @@
             background: rgba(0, 0, 0, 0.7);
             border: 1px solid #00ffff;
             padding: 15px;
+            -webkit-box-shadow: 0 0 10px #00ffff;
+            -moz-box-shadow: 0 0 10px #00ffff;
             box-shadow: 0 0 10px #00ffff;
             pointer-events: auto;
         }
         
         .glitch-text {
             position: absolute;
-            top: calc(50% - 200px); /* This moves the element up by 200 pixels from its centered position */
+            top: calc(50% - 200px);
             left: 40px;
-            /* transform is no longer needed since we are not centering vertically */
             color: #ff00ff;
             font-size: 1rem;
             line-height: 1.8;
@@ -143,11 +199,37 @@
             position: absolute;
             top: 50%;
             right: 40px;
+            -webkit-transform: translateY(-50%);
+            -moz-transform: translateY(-50%);
+            -o-transform: translateY(-50%);
+            -ms-transform: translateY(-50%);
             transform: translateY(-50%);
             width: 250px;
+            -webkit-filter: drop-shadow(0 0 10px #00ffff) drop-shadow(0 0 20px #ff00ff);
             filter: drop-shadow(0 0 10px #00ffff) drop-shadow(0 0 20px #ff00ff);
+            -webkit-animation: float 6s ease-in-out infinite;
+            -moz-animation: float 6s ease-in-out infinite;
+            -o-animation: float 6s ease-in-out infinite;
             animation: float 6s ease-in-out infinite;
             z-index: 3;
+        }
+        
+        @-webkit-keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+        
+        @-moz-keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+        
+        @-o-keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
         }
         
         @keyframes pulse {
@@ -156,9 +238,42 @@
             100% { opacity: 0.7; }
         }
         
+        @-webkit-keyframes scan {
+            0% { -webkit-transform: translateY(-100%); transform: translateY(-100%); }
+            100% { -webkit-transform: translateY(100%); transform: translateY(100%); }
+        }
+        
+        @-moz-keyframes scan {
+            0% { -moz-transform: translateY(-100%); transform: translateY(-100%); }
+            100% { -moz-transform: translateY(100%); transform: translateY(100%); }
+        }
+        
+        @-o-keyframes scan {
+            0% { -o-transform: translateY(-100%); transform: translateY(-100%); }
+            100% { -o-transform: translateY(100%); transform: translateY(100%); }
+        }
+        
         @keyframes scan {
             0% { transform: translateY(-100%); }
             100% { transform: translateY(100%); }
+        }
+        
+        @-webkit-keyframes float {
+            0% { -webkit-transform: translateY(-50%); transform: translateY(-50%); }
+            50% { -webkit-transform: translateY(calc(-50% - 20px)); transform: translateY(calc(-50% - 20px)); }
+            100% { -webkit-transform: translateY(-50%); transform: translateY(-50%); }
+        }
+        
+        @-moz-keyframes float {
+            0% { -moz-transform: translateY(-50%); transform: translateY(-50%); }
+            50% { -moz-transform: translateY(calc(-50% - 20px)); transform: translateY(calc(-50% - 20px)); }
+            100% { -moz-transform: translateY(-50%); transform: translateY(-50%); }
+        }
+        
+        @-o-keyframes float {
+            0% { -o-transform: translateY(-50%); transform: translateY(-50%); }
+            50% { -o-transform: translateY(calc(-50% - 20px)); transform: translateY(calc(-50% - 20px)); }
+            100% { -o-transform: translateY(-50%); transform: translateY(-50%); }
         }
         
         @keyframes float {
@@ -173,17 +288,39 @@
             height: 12px;
             border-radius: 50%;
             margin-right: 10px;
+            -webkit-animation: blink 1.5s infinite;
+            -moz-animation: blink 1.5s infinite;
+            -o-animation: blink 1.5s infinite;
             animation: blink 1.5s infinite;
         }
         
         .online {
             background-color: #00ff00;
+            -webkit-box-shadow: 0 0 5px #00ff00;
+            -moz-box-shadow: 0 0 5px #00ff00;
             box-shadow: 0 0 5px #00ff00;
         }
         
         .active {
             background-color: #ff00ff;
+            -webkit-box-shadow: 0 0 5px #ff00ff;
+            -moz-box-shadow: 0 0 5px #ff00ff;
             box-shadow: 0 0 5px #ff00ff;
+        }
+        
+        @-webkit-keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        @-moz-keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        @-o-keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
         
         @keyframes blink {
@@ -197,6 +334,9 @@
             height: 16px;
             background-color: #ff00ff;
             margin-left: 4px;
+            -webkit-animation: blink 1s infinite;
+            -moz-animation: blink 1s infinite;
+            -o-animation: blink 1s infinite;
             animation: blink 1s infinite;
         }
     </style>
@@ -233,7 +373,6 @@
              class="robot-image">
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
         // Main Three.js variables
         let scene, camera, renderer;
@@ -431,5 +570,8 @@
         // Initialize the scene when the page loads
         window.onload = init;
     </script>
+    
+    <!-- Include Three.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </body>
 </html>
