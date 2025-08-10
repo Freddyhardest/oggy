@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cyberpunk Nexus</title>
@@ -128,8 +130,9 @@
         
         .glitch-text {
             position: absolute;
-            top: calc(50% - 200px); 
+            top: calc(50% - 200px); /* This moves the element up by 200 pixels from its centered position */
             left: 40px;
+            /* transform is no longer needed since we are not centering vertically */
             color: #ff00ff;
             font-size: 1rem;
             line-height: 1.8;
@@ -196,7 +199,9 @@
             margin-left: 4px;
             animation: blink 1s infinite;
         }
-    </style></head><body>
+    </style>
+</head>
+<body>
     <div id="canvas-container"></div>
     
     <div id="ui-overlay">
@@ -425,4 +430,6 @@
         
         // Initialize the scene when the page loads
         window.onload = init;
-    </script></body></html>
+    </script>
+</body>
+</html>
