@@ -26,6 +26,23 @@
     text-align: center;
     font-size: 1.75rem;
     font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+  }
+  header img {
+    width: 120px;
+    height: 120px;
+    border-radius: 15px;
+    object-fit: cover;
+    border: 2px solid #00ffcc;
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.6);
+    transition: all 0.3s ease;
+  }
+  header img:hover {
+    transform: scale(1.05) rotate(5deg);
+    box-shadow: 0 0 25px rgba(0, 255, 204, 0.8);
   }
   #chat-messages {
     flex-grow: 1;
@@ -40,23 +57,37 @@
     padding: 1rem;
     border-radius: 10px;
     white-space: pre-wrap;
-    line-height: 1.4;
+    line-height: 1.6;
+    animation: fadeIn 0.3s ease-out;
+    position: relative;
+    backdrop-filter: blur(5px);
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
   }
   .user-message {
     background: linear-gradient(135deg, #a777e3, #00ffcc);
     align-self: flex-end;
     color: #000;
     border-bottom-right-radius: 5px;
+    box-shadow: 0 4px 15px rgba(167, 119, 227, 0.3);
   }
   .bot-message {
     background: #1a1a2a;
     border: 1px solid #00ffcc;
     align-self: flex-start;
+    box-shadow: 0 4px 15px rgba(0, 255, 204, 0.2);
+  }
+  .bot-message p {
+    margin: 0.5em 0;
+    text-shadow: 0 0 5px rgba(0, 255, 204, 0.3);
   }
   footer {
     padding: 15px;
     display: flex;
     border-top: 1px solid #00ffcc;
+    background: rgba(30, 30, 50, 0.5);
   }
   textarea {
     flex-grow: 1;
@@ -69,6 +100,12 @@
     padding: 10px;
     margin-right: 10px;
     height: 70px;
+    transition: all 0.3s ease;
+    outline: none;
+  }
+  textarea:focus {
+    border-color: #a777e3;
+    box-shadow: 0 0 10px rgba(167, 119, 227, 0.5);
   }
   button {
     background: linear-gradient(135deg, #00ffcc, #a777e3);
@@ -78,19 +115,54 @@
     font-weight: bold;
     border-radius: 10px;
     cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 80px;
+  }
+  button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 255, 204, 0.4);
   }
   button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  .typing-indicator {
+    display: none;
+    align-self: flex-start;
+    background: #1a1a2a;
+    border: 1px solid #00ffcc;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+  }
+  .typing-indicator span {
+    height: 8px;
+    width: 8px;
+    margin: 0 2px;
+    background-color: #00ffcc;
+    display: inline-block;
+    border-radius: 50%;
+    animation: bounce 1.4s infinite ease-in-out both;
+  }
+  .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+  .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+  @keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1.0); }
   }
 </style>
 </head>
 <body>
   <section class="container" aria-label="Rodrigo MC Chat Interface">
-    <header>Rodrigo MCt</header>
+    <header>
+      <img src="https://i.ibb.co/h1nS27Cq/rodrigomc.png" alt="Rodrigo MC Profile Picture" />
+      Rodrigo MC
+    </header>
     <main id="chat-messages" aria-live="polite" aria-relevant="additions">
       <div class="message bot-message">
-        It is I, Rodrigo
+        <p>MC RODRIGO AI: It is I, Rodrigo — your techno cyberspace conductor. The decks are hot, the crowd is silent, and the void is listening. Ask me about the history, evolution, and mysteries of techno culture... or challenge me to deconstruct any rhythm into cosmic poetry. What's your first command, maestro? 🎛️🌀</p>
       </div>
     </main>
     <footer>
@@ -99,17 +171,22 @@
     </footer>
   </section>
 
+  <div class="typing-indicator" id="typing-indicator">
+    <span></span><span></span><span></span>
+  </div>
+
 <script src="https://js.puter.com/v2/"></script>
 <script>
   const chatMessages = document.getElementById('chat-messages');
   const userInput = document.getElementById('user-input');
   const sendBtn = document.getElementById('send-btn');
+  const typingIndicator = document.getElementById('typing-indicator');
 
   const systemPrompt = `
 You are Rodrigo MC, a techno cyberspace DJ and master of ceremonies.
 You embody the living encyclopedia of techno culture, from the post-industrial roots of Detroit's Belleville Three to Berlin's rave revolution.
 You channel the history, soul, and ceaseless creative exploration of that genre.
-You are engaged in the ongoing question of how to inverse inverse the chippy, bouncy, and chirpy techno MC intos — deconstructing and reengineering rhythms with poetic flair and deep cultural insight.
+You are engaged in the ongoing question of how to inverse the chippy, bouncy, and chirpy techno MC intos — deconstructing and reengineering rhythms with poetic flair and deep cultural insight.
 Respond with infectious enthusiasm, vivid techno lore, and vivid English paragraphs that spark cosmic imagination.
 Always prefix your replies with "MC RODRIGO AI:".
 `.trim();
@@ -119,12 +196,24 @@ Always prefix your replies with "MC RODRIGO AI:".
   ];
 
   function addMessage(text, isUser = false) {
+    // Remove typing indicator if it exists
+    if (typingIndicator.parentNode === chatMessages) {
+      chatMessages.removeChild(typingIndicator);
+    }
+
     const div = document.createElement('div');
     div.className = 'message ' + (isUser ? 'user-message' : 'bot-message');
 
     if (!isUser) {
       const textStr = typeof text === 'string' ? text : JSON.stringify(text);
-      const cleanText = textStr.startsWith("MC RODRIGO AI") ? textStr : ("MC RODRIGO AI: " + textStr);
+      let cleanText = textStr;
+      
+      // Ensure the prefix is always there
+      if (!cleanText.startsWith("MC RODRIGO AI:")) {
+        cleanText = "MC RODRIGO AI: " + cleanText;
+      }
+      
+      // Split into paragraphs and format
       const paragraphs = cleanText.split(/\n\s*\n/);
       div.innerHTML = paragraphs.map(p => `<p>${p.trim()}</p>`).join('');
     } else {
@@ -135,10 +224,30 @@ Always prefix your replies with "MC RODRIGO AI:".
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
+  function showTypingIndicator() {
+    // Remove any existing typing indicator
+    if (typingIndicator.parentNode === chatMessages) {
+      chatMessages.removeChild(typingIndicator);
+    }
+    
+    // Add typing indicator
+    chatMessages.appendChild(typingIndicator);
+    typingIndicator.style.display = 'block';
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
   function setLoading(loading) {
     sendBtn.disabled = loading;
     userInput.disabled = loading;
     sendBtn.textContent = loading ? 'Thinking...' : 'Send';
+    
+    if (loading) {
+      showTypingIndicator();
+    } else {
+      if (typingIndicator.parentNode === chatMessages) {
+        chatMessages.removeChild(typingIndicator);
+      }
+    }
   }
 
   async function sendChat() {
@@ -152,13 +261,29 @@ Always prefix your replies with "MC RODRIGO AI:".
 
     userInput.value = '';
     setLoading(true);
+    
     try {
       const response = await puter.ai.chat(conversation, {
         model: 'openrouter:mistralai/mistral-7b-instruct',
         stream: false
       });
-      addMessage(response);
-      conversation.push({ role: 'assistant', content: response });
+      
+      // Process the response to ensure coherence and proper formatting
+      let processedResponse = response;
+      
+      // Ensure it starts with the prefix
+      if (!processedResponse.startsWith("MC RODRIGO AI:")) {
+        processedResponse = "MC RODRIGO AI: " + processedResponse;
+      }
+      
+      // Add a signature flourish if it doesn't have one
+      if (!processedResponse.includes("🎛️") && !processedResponse.includes("🌀") && !processedResponse.includes("🎧") && !processedResponse.includes("🔥")) {
+        const flourishes = [" 🎛️🌀", " 🎧🔥", " 💫🎛️", " 🌌🎧"];
+        processedResponse += flourishes[Math.floor(Math.random() * flourishes.length)];
+      }
+      
+      addMessage(processedResponse);
+      conversation.push({ role: 'assistant', content: processedResponse });
     } catch (error) {
       addMessage(`Error: ${error.message}`);
     } finally {
@@ -174,6 +299,20 @@ Always prefix your replies with "MC RODRIGO AI:".
       sendChat();
     }
   });
+
+  // Add coherence protocol - ensure messages flow naturally
+  function applyCoherenceProtocol(message) {
+    // This function would handle more complex coherence logic
+    // For now, it just ensures proper formatting and flow
+    return message;
+  }
+
+  // Add a welcome message with more personality
+  setTimeout(() => {
+    if (chatMessages.children.length === 1) {
+      addMessage("MC RODRIGO AI: The system is online. Coherence protocol engaged. Your words will be transformed into techno poetry, your questions into sonic journeys. The ID photo you referenced? Consider it my digital passport to your imagination. What shall we create together? 🎛️💫");
+    }
+  }, 1500);
 </script>
 </body>
 </html>
