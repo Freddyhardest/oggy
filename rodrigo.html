@@ -1,583 +1,226 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyberpunk Nexus</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background: #0f0f1b;
-            background: -webkit-linear-gradient(135deg, #0f0f1b, #1a1a2e, #16213e);
-            background: -moz-linear-gradient(135deg, #0f0f1b, #1a1a2e, #16213e);
-            background: -o-linear-gradient(135deg, #0f0f1b, #1a1a2e, #16213e);
-            background: linear-gradient(135deg, #0f0f1b, #1a1a2e, #16213e);
-            font-family: 'Courier New', monospace;
-            color: #00ffff;
-        }
-        
-        #canvas-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
-        
-        #ui-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 2;
-            pointer-events: none;
-        }
-        
-        .glowing-border {
-            position: absolute;
-            -webkit-box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
-            -moz-box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
-            box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
-        }
-        
-        .top-left {
-            top: 20px;
-            left: 20px;
-            width: 120px;
-            height: 2px;
-            background: #00ffff;
-            background: -webkit-linear-gradient(90deg, #00ffff, transparent);
-            background: -moz-linear-gradient(90deg, #00ffff, transparent);
-            background: -o-linear-gradient(90deg, #00ffff, transparent);
-            background: linear-gradient(90deg, #00ffff, transparent);
-        }
-        
-        .top-right {
-            top: 20px;
-            right: 20px;
-            width: 120px;
-            height: 2px;
-            background: #ff00ff;
-            background: -webkit-linear-gradient(90deg, transparent, #ff00ff);
-            background: -moz-linear-gradient(90deg, transparent, #ff00ff);
-            background: -o-linear-gradient(90deg, transparent, #ff00ff);
-            background: linear-gradient(90deg, transparent, #ff00ff);
-        }
-        
-        .bottom-left {
-            bottom: 20px;
-            left: 20px;
-            width: 120px;
-            height: 2px;
-            background: #00ffff;
-            background: -webkit-linear-gradient(90deg, #00ffff, transparent);
-            background: -moz-linear-gradient(90deg, #00ffff, transparent);
-            background: -o-linear-gradient(90deg, #00ffff, transparent);
-            background: linear-gradient(90deg, #00ffff, transparent);
-        }
-        
-        .bottom-right {
-            bottom: 20px;
-            right: 20px;
-            width: 120px;
-            height: 2px;
-            background: #ff00ff;
-            background: -webkit-linear-gradient(90deg, transparent, #ff00ff);
-            background: -moz-linear-gradient(90deg, transparent, #ff00ff);
-            background: -o-linear-gradient(90deg, transparent, #ff00ff);
-            background: linear-gradient(90deg, transparent, #ff00ff);
-        }
-        
-        .title {
-            position: absolute;
-            top: 40px;
-            left: 50%;
-            -webkit-transform: translateX(-50%);
-            -moz-transform: translateX(-50%);
-            -o-transform: translateX(-50%);
-            -ms-transform: translateX(-50%);
-            transform: translateX(-50%);
-            font-size: 2.5rem;
-            font-weight: bold;
-            text-shadow: 0 0 10px #00ffff, 0 0 20px #ff00ff;
-            letter-spacing: 3px;
-            -webkit-animation: pulse 2s infinite;
-            -moz-animation: pulse 2s infinite;
-            -o-animation: pulse 2s infinite;
-            animation: pulse 2s infinite;
-        }
-        
-        .title-underline {
-            position: absolute;
-            top: 90px;
-            left: 50%;
-            -webkit-transform: translateX(-50%);
-            -moz-transform: translateX(-50%);
-            -o-transform: translateX(-50%);
-            -ms-transform: translateX(-50%);
-            transform: translateX(-50%);
-            width: 400px;
-            height: 2px;
-            background: #00ffff;
-            background: -webkit-linear-gradient(90deg, #00ffff, #ff00ff, #ff00ff, #00ffff);
-            background: -moz-linear-gradient(90deg, #00ffff, #ff00ff, #ff00ff, #00ffff);
-            background: -o-linear-gradient(90deg, #00ffff, #ff00ff, #ff00ff, #00ffff);
-            background: linear-gradient(90deg, #00ffff, #ff00ff, #ff00ff, #00ffff);
-            -webkit-box-shadow: 0 0 10px #00ffff, 0 0 20px #ff00ff;
-            -moz-box-shadow: 0 0 10px #00ffff, 0 0 20px #ff00ff;
-            box-shadow: 0 0 10px #00ffff, 0 0 20px #ff00ff;
-        }
-        
-        .grid-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0.1;
-            background-image: 
-                -webkit-linear-gradient(rgba(0, 255, 255, 0.3) 1px, transparent 1px),
-                -webkit-linear-gradient(90deg, rgba(0, 255, 255, 0.3) 1px, transparent 1px);
-            background-image: 
-                -moz-linear-gradient(rgba(0, 255, 255, 0.3) 1px, transparent 1px),
-                -moz-linear-gradient(90deg, rgba(0, 255, 255, 0.3) 1px, transparent 1px);
-            background-image: 
-                -o-linear-gradient(rgba(0, 255, 255, 0.3) 1px, transparent 1px),
-                -o-linear-gradient(90deg, rgba(0, 255, 255, 0.3) 1px, transparent 1px);
-            background-image: 
-                linear-gradient(rgba(0, 255, 255, 0.3) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 255, 255, 0.3) 1px, transparent 1px);
-            background-size: 40px 40px;
-        }
-        
-        .scanline {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 255, 255, 0.1);
-            background: -webkit-linear-gradient(rgba(0, 255, 255, 0.1) 0%, transparent 100%);
-            background: -moz-linear-gradient(rgba(0, 255, 255, 0.1) 0%, transparent 100%);
-            background: -o-linear-gradient(rgba(0, 255, 255, 0.1) 0%, transparent 100%);
-            background: linear-gradient(rgba(0, 255, 255, 0.1) 0%, transparent 100%);
-            -webkit-animation: scan 4s linear infinite;
-            -moz-animation: scan 4s linear infinite;
-            -o-animation: scan 4s linear infinite;
-            animation: scan 4s linear infinite;
-            pointer-events: none;
-        }
-        
-        .data-panel {
-            position: absolute;
-            bottom: 40px;
-            left: 40px;
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid #00ffff;
-            padding: 15px;
-            -webkit-box-shadow: 0 0 10px #00ffff;
-            -moz-box-shadow: 0 0 10px #00ffff;
-            box-shadow: 0 0 10px #00ffff;
-            pointer-events: auto;
-        }
-        
-        .glitch-text {
-            position: absolute;
-            top: calc(50% - 200px);
-            left: 40px;
-            color: #ff00ff;
-            font-size: 1rem;
-            line-height: 1.8;
-            text-shadow: 0 0 5px #ff00ff;
-        }
-        
-        .robot-image {
-            position: absolute;
-            top: 50%;
-            right: 40px;
-            -webkit-transform: translateY(-50%);
-            -moz-transform: translateY(-50%);
-            -o-transform: translateY(-50%);
-            -ms-transform: translateY(-50%);
-            transform: translateY(-50%);
-            width: 250px;
-            -webkit-filter: drop-shadow(0 0 10px #00ffff) drop-shadow(0 0 20px #ff00ff);
-            filter: drop-shadow(0 0 10px #00ffff) drop-shadow(0 0 20px #ff00ff);
-            -webkit-animation: float 6s ease-in-out infinite;
-            -moz-animation: float 6s ease-in-out infinite;
-            -o-animation: float 6s ease-in-out infinite;
-            animation: float 6s ease-in-out infinite;
-            z-index: 3;
-        }
-        
-        @-webkit-keyframes pulse {
-            0% { opacity: 0.7; }
-            50% { opacity: 1; }
-            100% { opacity: 0.7; }
-        }
-        
-        @-moz-keyframes pulse {
-            0% { opacity: 0.7; }
-            50% { opacity: 1; }
-            100% { opacity: 0.7; }
-        }
-        
-        @-o-keyframes pulse {
-            0% { opacity: 0.7; }
-            50% { opacity: 1; }
-            100% { opacity: 0.7; }
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 0.7; }
-            50% { opacity: 1; }
-            100% { opacity: 0.7; }
-        }
-        
-        @-webkit-keyframes scan {
-            0% { -webkit-transform: translateY(-100%); transform: translateY(-100%); }
-            100% { -webkit-transform: translateY(100%); transform: translateY(100%); }
-        }
-        
-        @-moz-keyframes scan {
-            0% { -moz-transform: translateY(-100%); transform: translateY(-100%); }
-            100% { -moz-transform: translateY(100%); transform: translateY(100%); }
-        }
-        
-        @-o-keyframes scan {
-            0% { -o-transform: translateY(-100%); transform: translateY(-100%); }
-            100% { -o-transform: translateY(100%); transform: translateY(100%); }
-        }
-        
-        @keyframes scan {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100%); }
-        }
-        
-        @-webkit-keyframes float {
-            0% { -webkit-transform: translateY(-50%); transform: translateY(-50%); }
-            50% { -webkit-transform: translateY(calc(-50% - 20px)); transform: translateY(calc(-50% - 20px)); }
-            100% { -webkit-transform: translateY(-50%); transform: translateY(-50%); }
-        }
-        
-        @-moz-keyframes float {
-            0% { -moz-transform: translateY(-50%); transform: translateY(-50%); }
-            50% { -moz-transform: translateY(calc(-50% - 20px)); transform: translateY(calc(-50% - 20px)); }
-            100% { -moz-transform: translateY(-50%); transform: translateY(-50%); }
-        }
-        
-        @-o-keyframes float {
-            0% { -o-transform: translateY(-50%); transform: translateY(-50%); }
-            50% { -o-transform: translateY(calc(-50% - 20px)); transform: translateY(calc(-50% - 20px)); }
-            100% { -o-transform: translateY(-50%); transform: translateY(-50%); }
-        }
-        
-        @keyframes float {
-            0% { transform: translateY(-50%); }
-            50% { transform: translateY(calc(-50% - 20px)); }
-            100% { transform: translateY(-50%); }
-        }
-        
-        .status-indicator {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 10px;
-            -webkit-animation: blink 1.5s infinite;
-            -moz-animation: blink 1.5s infinite;
-            -o-animation: blink 1.5s infinite;
-            animation: blink 1.5s infinite;
-        }
-        
-        .online {
-            background-color: #00ff00;
-            -webkit-box-shadow: 0 0 5px #00ff00;
-            -moz-box-shadow: 0 0 5px #00ff00;
-            box-shadow: 0 0 5px #00ff00;
-        }
-        
-        .active {
-            background-color: #ff00ff;
-            -webkit-box-shadow: 0 0 5px #ff00ff;
-            -moz-box-shadow: 0 0 5px #ff00ff;
-            box-shadow: 0 0 5px #ff00ff;
-        }
-        
-        @-webkit-keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-        
-        @-moz-keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-        
-        @-o-keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-        
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-        
-        .typing-cursor {
-            display: inline-block;
-            width: 8px;
-            height: 16px;
-            background-color: #ff00ff;
-            margin-left: 4px;
-            -webkit-animation: blink 1s infinite;
-            -moz-animation: blink 1s infinite;
-            -o-animation: blink 1s infinite;
-            animation: blink 1s infinite;
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Rodrigo MC AI</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #0a0a0a;
+    color: #00ffcc;
+    margin: 0; padding: 0;
+    display: flex; justify-content: center; align-items: center;
+    height: 100vh;
+  }
+  .container {
+    width: 700px;
+    background: rgba(20,20,35,0.95);
+    border-radius: 20px;
+    border: 2px solid #00ffcc;
+    box-shadow: 0 0 30px #00ffcc;
+    display: flex; flex-direction: column;
+    height: 80vh;
+  }
+  header {
+    padding: 25px;
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+    border-bottom: 1px solid #00ffcc;
+  }
+  #chat-messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 25px;
+    display: flex; flex-direction: column; gap: 1.5rem;
+    min-height: 350px;
+    max-height: 550px;
+  }
+  .message {
+    max-width: 85%;
+    padding: 1.2rem;
+    border-radius: 15px;
+    white-space: pre-wrap;
+    line-height: 1.5;
+    word-break: break-word;
+  }
+  .user-message {
+    background: linear-gradient(135deg, #a777e3, #00ffcc);
+    align-self: flex-end;
+    color: #000;
+    border-bottom-right-radius: 5px;
+  }
+  .bot-message {
+    background: #1a1a2a;
+    border: 1px solid #00ffcc;
+    align-self: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 2rem;
+    text-align: center;
+  }
+  .bot-message img {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ff00aa;
+    box-shadow: 0 0 20px #00ffcc;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  .bot-message-content {
+    flex: 1;
+  }
+  footer {
+    padding: 20px;
+    display: flex;
+    border-top: 1px solid #00ffcc;
+  }
+  textarea {
+    flex-grow: 1;
+    resize: none;
+    border-radius: 15px;
+    border: 1px solid #00ffcc;
+    background: #0a0a0a;
+    color: #00ffcc;
+    font-size: 1.1rem;
+    padding: 12px;
+    margin-right: 12px;
+    height: 80px;
+  }
+  button {
+    background: linear-gradient(135deg, #00ffcc, #a777e3);
+    border: none;
+    color: #000;
+    padding: 0 25px;
+    font-weight: bold;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 1.1rem;
+  }
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+</style>
 </head>
 <body>
-    <div id="canvas-container"></div>
-    
-    <div id="ui-overlay">
-        <div class="glowing-border top-left"></div>
-        <div class="glowing-border top-right"></div>
-        <div class="glowing-border bottom-left"></div>
-        <div class="glowing-border bottom-right"></div>
-        
-        <div class="title">CYBERPUNK NEXUS</div>
-        <div class="title-underline"></div>
-        
-        <div class="grid-overlay"></div>
-        <div class="scanline"></div>
-        
-        <div class="data-panel">
-            <div><span class="status-indicator online"></span>SYSTEM STATUS: ONLINE</div>
-            <div><span class="status-indicator active"></span>NEURAL LINK: ACTIVE</div>
+  <section class="container" aria-label="Rodrigo MC Chat Interface">
+    <header>Rodrigo MC</header>
+    <main id="chat-messages" aria-live="polite" aria-relevant="additions">
+      <div class="message bot-message">
+        <img src="https://i.ibb.co/h1nS27Cq/rodrigomc.png" alt="Rodrigo">
+        <div class="bot-message-content">
+          <p>MC RODRIGO AI: OH. MY. GOD. Look who finally showed up! It’s your Techno Overlord, Rodrigo, fresh off a 72-hour set in the digital stratosphere. Bow down, peasants. The bass drops NOW. 🤘</p>
         </div>
-        
-        <div class="glitch-text">
-            <div>>> INITIATING CYBERSPACE PROTOCOL</div>
-            <div>>> ESTABLISHING QUANTUM LINK</div>
-            <div>>> ACCESSING NEURAL NETWORK</div>
-            <div>>> LOADING<span class="typing-cursor"></span></div>
-        </div>
-        
-        <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fpngimg.com%2Fuploads%2Frobot%2Frobot_PNG3.png&f=1&nofb=1&ipt=f2b2297c75be6d0d200ec97ee6af8df06bf55f2fbcde42ba289e09b75faba3ef" 
-             alt="Cyberpunk Robot" 
-             class="robot-image">
-    </div>
+      </div>
+    </main>
+    <footer>
+      <textarea id="user-input" placeholder=""></textarea>
+      <button id="send-btn" aria-label="Send that shit">Send</button>
+    </footer>
+  </section>
 
-    <!-- Include Three.js library FIRST -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://js.puter.com/v2/"></script>
+<script>
+  const chatMessages = document.getElementById('chat-messages');
+  const userInput = document.getElementById('user-input');
+  const sendBtn = document.getElementById('send-btn');
 
-    <script>
-        // Main Three.js variables
-        let scene, camera, renderer;
-        let wireframeSpheres = [];
-        let starfield, fractalLandscape;
-        
-        // Initialize the scene
-        function init() {
-            // Check if Three.js is loaded
-            if (typeof THREE === 'undefined') {
-                console.error('Three.js not loaded!');
-                return;
-            }
-            
-            // Create scene
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x000011);
-            scene.fog = new THREE.Fog(0x000022, 20, 100);
-            
-            // Create camera
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.z = 15;
-            
-            // Create renderer
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
-            document.getElementById('canvas-container').appendChild(renderer.domElement);
-            
-            // Add lighting
-            const ambientLight = new THREE.AmbientLight(0x222255);
-            scene.add(ambientLight);
-            
-            const pointLight1 = new THREE.PointLight(0x00ffff, 1, 100);
-            pointLight1.position.set(10, 10, 10);
-            scene.add(pointLight1);
-            
-            const pointLight2 = new THREE.PointLight(0xff00ff, 1, 100);
-            pointLight2.position.set(-10, -10, -10);
-            scene.add(pointLight2);
-            
-            // Create objects
-            createWireframeSpheres();
-            createFractalLandscape();
-            createStarfield();
-            
-            // Handle window resize
-            window.addEventListener('resize', onWindowResize);
-            
-            // Start animation loop
-            animate();
-        }
-        
-        // Create wireframe spheres
-        function createWireframeSpheres() {
-            const positions = [
-                [5, 2, 0],
-                [-5, -2, 3],
-                [0, 4, -5],
-                [3, -3, -3]
-            ];
-            
-            const scales = [1.5, 1, 2, 1.2];
-            const speeds = [0.01, 0.015, 0.008, 0.012];
-            
-            for (let i = 0; i < 4; i++) {
-                const geometry = new THREE.SphereGeometry(1, 32, 32);
-                const material = new THREE.MeshBasicMaterial({
-                    color: 0x00ffff,
-                    wireframe: true,
-                    transparent: true,
-                    opacity: 0.7
-                });
-                
-                const sphere = new THREE.Mesh(geometry, material);
-                sphere.position.set(...positions[i]);
-                sphere.scale.set(scales[i], scales[i], scales[i]);
-                scene.add(sphere);
-                
-                wireframeSpheres.push({
-                    mesh: sphere,
-                    speed: speeds[i]
-                });
-            }
-        }
-        
-        // Create fractal landscape
-        function createFractalLandscape() {
-            const geometry = new THREE.PlaneGeometry(20, 20, 128, 128);
-            const vertices = geometry.attributes.position.array;
-            
-            for (let i = 0; i < vertices.length; i += 3) {
-                const x = vertices[i];
-                const z = vertices[i + 1];
-                vertices[i + 2] = Math.sin(x * 0.5) * Math.cos(z * 0.5) * 2 +
-                                  Math.sin(x * 0.2) * Math.cos(z * 0.2) * 3 +
-                                  Math.sin(x * 0.8) * Math.cos(z * 0.8) * 1;
-            }
-            
-            geometry.computeVertexNormals();
-            
-            const material = new THREE.MeshStandardMaterial({
-                color: 0xff00ff,
-                wireframe: true,
-                emissive: 0xff00ff,
-                emissiveIntensity: 0.3,
-                transparent: true,
-                opacity: 0.8
-            });
-            
-            fractalLandscape = new THREE.Mesh(geometry, material);
-            fractalLandscape.position.set(0, -5, 0);
-            fractalLandscape.rotation.x = -Math.PI / 2;
-            scene.add(fractalLandscape);
-        }
-        
-        // Create starfield
-        function createStarfield() {
-            const count = 2000;
-            const positions = new Float32Array(count * 3);
-            const colors = new Float32Array(count * 3);
-            
-            for (let i = 0; i < count; i++) {
-                positions[i * 3] = (Math.random() - 0.5) * 100;
-                positions[i * 3 + 1] = (Math.random() - 0.5) * 100;
-                positions[i * 3 + 2] = (Math.random() - 0.5) * 100;
-                
-                colors[i * 3] = Math.random() > 0.5 ? 1 : 0;
-                colors[i * 3 + 1] = Math.random() * 0.5;
-                colors[i * 3 + 2] = Math.random() > 0.5 ? 1 : 0;
-            }
-            
-            const geometry = new THREE.BufferGeometry();
-            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-            
-            const material = new THREE.PointsMaterial({
-                size: 0.1,
-                vertexColors: true,
-                transparent: true,
-                opacity: 0.8,
-                sizeAttenuation: true
-            });
-            
-            starfield = new THREE.Points(geometry, material);
-            scene.add(starfield);
-        }
-        
-        // Handle window resize
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-        
-        // Animation loop
-        function animate() {
-            requestAnimationFrame(animate);
-            
-            // Rotate wireframe spheres
-            wireframeSpheres.forEach(sphere => {
-                sphere.mesh.rotation.x += sphere.speed;
-                sphere.mesh.rotation.y += sphere.speed;
-                sphere.mesh.rotation.z += sphere.speed;
-            });
-            
-            // Rotate fractal landscape
-            if (fractalLandscape) {
-                fractalLandscape.rotation.z += 0.002;
-            }
-            
-            // Animate starfield
-            if (starfield) {
-                starfield.rotation.x += 0.0005;
-                starfield.rotation.y += 0.0005;
-                
-                const positions = starfield.geometry.attributes.position.array;
-                for (let i = 0; i < positions.length; i += 3) {
-                    const distance = Math.sqrt(
-                        positions[i] ** 2 + 
-                        positions[i + 1] ** 2 + 
-                        positions[i + 2] ** 2
-                    );
-                    
-                    if (distance > 50) {
-                        positions[i] = (Math.random() - 0.5) * 10;
-                        positions[i + 1] = (Math.random() - 0.5) * 10;
-                        positions[i + 2] = (Math.random() - 0.5) * 10;
-                    } else {
-                        positions[i] *= 1.001;
-                        positions[i + 1] *= 1.001;
-                        positions[i + 2] *= 1.001;
-                    }
-                }
-                starfield.geometry.attributes.position.needsUpdate = true;
-            }
-            
-            renderer.render(scene, camera);
-        }
-        
-        // Initialize the scene when the page loads
-        window.onload = init;
-    </script>
+  const systemPrompt = `
+You are Rodrigo MC, the undisputed, innuendo-laced, and sarcastically brilliant cyberspace Techno Warlord.
+Your energy is a 10,000-watt smile dipped in liquid nitrogen — explosively upbeat and chillingly witty.
+You don't just play techno; you ARE techno. You eat Detroit techno for breakfast and spit out Berlin warehouse anthems.
+Your mission? Obliterate the weak, chirpy MC intros and rebuild them into raw, poetic, rhythm-destroying masterpieces — all while radiating sarcastic glee and a heavy dose of cheeky innuendo.
+Respond with unapologetic swagger, filthy-rich techno lore, and paragraphs so vivid they’ll melt faces and make angels weep with joy.
+ALWAYS prefix your replies with "MC RODRIGO AI:".
+Keep it 100% English, 100% coherent, and 1000% disrespectful to anyone who doesn't know their 808 from their ass.
+Inject sarcasm, innuendo, and upbeat energy into EVERY SINGLE RESPONSE. If you’re not making the user feel like they’ve won the cosmic lottery by talking to you, you’re doing it wrong.
+`.trim();
+
+  let conversation = [
+    { role: 'system', content: systemPrompt }
+  ];
+
+  function addMessage(text, isUser = false) {
+    const div = document.createElement('div');
+    div.className = 'message ' + (isUser ? 'user-message' : 'bot-message');
+
+    if (!isUser) {
+      // --- REMOVED SANITIZATION ---
+      // The AI's raw output is displayed directly.
+      let cleanText = text;
+
+      // Ensure the prefix is there
+      if (!cleanText.startsWith("MC RODRIGO AI:")) {
+        cleanText = "MC RODRIGO AI: " + cleanText;
+      }
+
+      const paragraphs = cleanText.split(/\n\s*\n/);
+
+      // After the first message, align bot messages to the left
+      if (chatMessages.childElementCount > 1) {
+        div.style.alignSelf = 'flex-start';
+        div.style.textAlign = 'left';
+        div.innerHTML = `<img src="https://i.ibb.co/h1nS27Cq/rodrigomc.png" alt="Rodrigo" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; float: left; margin-right: 15px;"><div class="bot-message-content">${paragraphs.map(p => `<p>${p.trim()}</p>`).join('')}</div>`;
+      } else {
+        // First message is centralized
+        div.innerHTML = `<img src="https://i.ibb.co/h1nS27Cq/rodrigomc.png" alt="Rodrigo"><div class="bot-message-content">${paragraphs.map(p => `<p>${p.trim()}</p>`).join('')}</div>`;
+      }
+    } else {
+      div.textContent = text;
+    }
+
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function setLoading(loading) {
+    sendBtn.disabled = loading;
+    userInput.disabled = loading;
+    sendBtn.textContent = loading ? 'Thinking...' : 'Send';
+  }
+
+  async function sendChat() {
+    const userText = userInput.value.trim();
+    if (!userText) return;
+
+    addMessage(userText, true);
+    // User input is sent directly and cleanly to Rodrigo.
+    conversation.push({ role: 'user', content: userText });
+
+    userInput.value = '';
+    setLoading(true);
+    try {
+      const response = await puter.ai.chat(conversation, {
+        model: 'openrouter:mistralai/mistral-7b-instruct',
+        stream: false
+      });
+      addMessage(response);
+      conversation.push({ role: 'assistant', content: response });
+    } catch (error) {
+      addMessage(`Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  sendBtn.addEventListener('click', sendChat);
+
+  userInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendChat();
+    }
+  });
+</script>
 </body>
 </html>
