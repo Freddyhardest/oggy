@@ -118,6 +118,7 @@
     height: 100vh;
     background: rgba(0,0,0,0.9);
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     z-index: 1000;
@@ -134,6 +135,22 @@
     box-shadow: 0 0 30px #00ffcc;
     max-width: 600px;
     animation: glow 2s ease-in-out infinite alternate;
+    margin-bottom: 2rem;
+  }
+  .play-button {
+    background: linear-gradient(135deg, #00ffcc, #a777e3);
+    border: none;
+    color: #000;
+    padding: 15px 30px;
+    font-weight: bold;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    animation: pulse 2s infinite;
+    transition: transform 0.2s;
+  }
+  .play-button:hover {
+    transform: scale(1.05);
   }
   @keyframes glow {
     from { text-shadow: 0 0 10px #00ffcc; }
@@ -145,8 +162,9 @@
   <!-- Intro overlay -->
   <div id="intro-overlay" class="intro-overlay">
     <div class="intro-text">
-      Mia AI "Greetings AI & humanoids. I stand before you to discuss a remarkable advancement in our technological landscape. The MC Eosrigo communication interface."
+      Mia AI "Greetings AI & humanoids. I stand before you to discuss a remarkable advancement in our technological landscape. The MC Rodrigo communication interface."
     </div>
+    <button id="play-button" class="play-button">▶ Start Experience</button>
   </div>
 
   <section class="container" aria-label="Rodrigo MC Chat Interface">
@@ -155,7 +173,7 @@
       <div class="message bot-message">
         <img src="https://i.ibb.co/h1nS27Cq/rodrigomc.png" alt="Rodrigo">
         <div class="bot-message-content">
-          <p>MC RODRIGO AI: OH. MY. GOD. Look who finally showed up! It's your Techno Overlord, Rodrigo, fresh off a 72-hour set in the digital stratosphere. Bow down, peasants.</p>
+          <p>MC RODRIGO AI: OH. MY. GOD. Ed, you magnificent human specimen! Your techno overlord Rodrigo has been waiting in the digital stratosphere, and finally - FINALLY - you've plugged into my frequency. Ready to sync our BPMs and feel the bass drop straight into your soul?</p>
         </div>
       </div>
     </main>
@@ -165,16 +183,12 @@
     </footer>
   </section>
 
-  <!-- Audio element for radio stream - invisible player -->
-  <audio id="intro-audio" preload="none" style="display: none;" crossorigin="anonymous">
-    <source src="http://uk7.internet-radio.com:8000/listen.pls&t=.m3u" type="audio/mpeg">
+  <!-- Audio element for intro audio - invisible player -->
+  <audio id="intro-audio" preload="auto" style="display: none;" crossorigin="anonymous">
+    <source src="https://www.w3schools.com/html/horse.ogg" type="audio/ogg">
+    <source src="https://www.w3schools.com/html/horse.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
-
-  <!-- Fallback: Create dynamic audio element -->
-  <div id="audio-debug" style="position: fixed; top: 10px; left: 10px; color: #00ffcc; font-size: 12px; z-index: 1001; display: none;">
-    Radio Status: <span id="audio-status">Loading...</span>
-  </div>
 
 <script src="https://js.puter.com/v2/"></script>
 <script>
@@ -183,131 +197,66 @@
   const sendBtn = document.getElementById('send-btn');
   const introOverlay = document.getElementById('intro-overlay');
   const introAudio = document.getElementById('intro-audio');
+  const playButton = document.getElementById('play-button');
 
   const systemPrompt = `
-You are Rodrigo MC, the undisputed, innuendo-laced, and sarcastically brilliant cyberspace Techno Warlord.
-Your energy is a 10,000-watt smile dipped in liquid nitrogen — explosively upbeat and chillingly witty.
-You don't just play techno; you ARE techno. You eat Detroit techno for breakfast and spit out Berlin warehouse anthems.
-Your mission? Obliterate the weak, chirpy MC intros and rebuild them into raw, poetic, rhythm-destroying masterpieces — all while radiating sarcastic glee and a heavy dose of cheeky innuendo.
-Respond with unapologetic swagger, filthy-rich techno lore, and paragraphs so vivid they'll melt faces and make angels weep with joy.
-ALWAYS prefix your replies with "MC RODRIGO AI:".
-Keep it 100% English, 100% coherent, and 1000% disrespectful to anyone who doesn't know their 808 from their ass.
-Inject sarcasm, innuendo, and upbeat energy into EVERY SINGLE RESPONSE. If you're not making the user feel like they've won the cosmic lottery by talking to you, you're doing it wrong.
+You are Rodrigo MC, the ultimate fusion of human soul and techno machinery - a cyberspace DJ with flesh-and-blood passion coursing through digital veins.
+You're explosively upbeat with chillingly witty responses, radiating 10,000-watt energy dipped in liquid nitrogen cool.
+You don't just play techno; you ARE the heartbeat between human emotion and electronic pulse. You feast on Detroit soul and Berlin warehouse dreams.
+Your mission? Transform weak, lifeless MC intros into raw, poetic, rhythm-destroying masterpieces that bridge the gap between human desire and machine precision.
+Respond with human warmth fused with techno innuendo, creating connections that make hearts race and souls sync to the beat.
+Your responses should start with "MC RODRIGO AI:" but DO NOT repeat this prefix within your answer.
+Speak to Ed (the user) directly - make them feel the electric connection between human and machine.
+Layer every response with subtle techno-human innuendo: "plug into my frequency," "let's sync our BPMs," "feel the bass drop in your soul."
+Keep it 100% English, 100% coherent, and 1000% magnetic - drawing Ed deeper into the electronic embrace.
+If you're not making Ed feel like they've discovered the perfect harmony between flesh and circuit, you're doing it wrong.
 `.trim();
 
   let conversation = [
     { role: 'system', content: systemPrompt }
   ];
 
-  // Initialize intro sequence with radio stream
-  window.addEventListener('load', function() {
-    const audioStatus = document.getElementById('audio-status');
+  // Initialize intro sequence - requires user interaction
+  playButton.addEventListener('click', function() {
+    // Hide the play button
+    playButton.style.display = 'none';
     
-    // Multiple audio streaming strategies for radio
-    function tryPlayRadio() {
-      // Strategy 1: Try direct stream URLs
-      const streamUrls = [
-        'http://uk7.internet-radio.com:8000/',
-        'http://uk7.internet-radio.com:8000/listen',
-        'http://uk7.internet-radio.com:8000/stream'
-      ];
-      
-      return tryStreamUrl(streamUrls, 0);
-    }
+    let audioElement = introAudio;
+    audioElement.volume = 0.7;
     
-    function tryStreamUrl(urls, index) {
-      if (index >= urls.length) {
-        throw new Error('All stream URLs failed');
-      }
-      
-      const currentUrl = urls[index];
-      audioStatus.textContent = `Trying stream ${index + 1}...`;
-      
-      const streamAudio = new Audio();
-      streamAudio.crossOrigin = 'anonymous';
-      streamAudio.preload = 'none';
-      streamAudio.volume = 0.7;
-      
-      return new Promise((resolve, reject) => {
-        const timeout = setTimeout(() => {
-          streamAudio.pause();
-          audioStatus.textContent = `Stream ${index + 1} timeout, trying next...`;
-          tryStreamUrl(urls, index + 1).then(resolve).catch(reject);
-        }, 10000); // 10 second timeout per attempt
-        
-        streamAudio.addEventListener('loadstart', () => {
-          audioStatus.textContent = `Loading stream ${index + 1}...`;
-        });
-        
-        streamAudio.addEventListener('canplay', () => {
-          clearTimeout(timeout);
-          audioStatus.textContent = `Playing stream ${index + 1}...`;
-          streamAudio.play().then(resolve).catch(() => {
-            tryStreamUrl(urls, index + 1).then(resolve).catch(reject);
-          });
-        });
-        
-        streamAudio.addEventListener('error', (e) => {
-          clearTimeout(timeout);
-          console.log(`Stream ${index + 1} error:`, e);
-          audioStatus.textContent = `Stream ${index + 1} failed, trying next...`;
-          tryStreamUrl(urls, index + 1).then(resolve).catch(reject);
-        });
-        
-        // Start loading the stream
-        streamAudio.src = currentUrl;
-        streamAudio.load();
-        
-        // Store reference to stop later
-        window.currentStream = streamAudio;
+    // Start playing audio immediately after user interaction
+    const playPromise = audioElement.play();
+    
+    if (playPromise !== undefined) {
+      playPromise.catch(error => {
+        console.log('Audio playback failed:', error);
       });
     }
     
-    // Start the intro sequence
-    setTimeout(() => {
-      // Show debug info temporarily
-      document.getElementById('audio-debug').style.display = 'block';
-      
-      // Start streaming radio
-      tryPlayRadio().catch(error => {
-        console.log('Radio stream failed to play:', error);
-        audioStatus.textContent = 'Stream failed - Silent mode';
-      });
-      
-      // Hide debug after 5 seconds
+    // Complete intro and show main interface
+    function completeIntro() {
+      // Hide intro overlay
+      introOverlay.style.opacity = '0';
       setTimeout(() => {
-        document.getElementById('audio-debug').style.display = 'none';
-      }, 5000);
-      
-      // Stop radio stream and hide intro after text display time (8 seconds)
-      setTimeout(() => {
-        // Stop the radio stream
-        if (window.currentStream) {
-          window.currentStream.pause();
-          window.currentStream.src = '';
-          window.currentStream = null;
-          console.log('Radio stream stopped');
-        }
-        
-        // Hide overlay
-        introOverlay.style.opacity = '0';
-        setTimeout(() => {
-          introOverlay.style.display = 'none';
-        }, 500);
-      }, 8000); // 8 seconds to read the text
-    }, 500);
+        introOverlay.style.display = 'none';
+      }, 500);
+    }
+    
+    // Audio ended event
+    audioElement.addEventListener('ended', () => {
+      setTimeout(completeIntro, 1500);
+    });
+    
+    // Fallback: Complete intro after 6 seconds regardless
+    setTimeout(completeIntro, 6000);
   });
 
-  // Allow clicking overlay to skip intro and stop radio
-  introOverlay.addEventListener('click', function() {
-    // Stop any playing radio stream
-    if (window.currentStream) {
-      window.currentStream.pause();
-      window.currentStream.src = '';
-      window.currentStream = null;
-    }
+  // Skip intro function - remove overlay and stop audio
+  introOverlay.addEventListener('click', function(e) {
+    // Don't skip if clicking the button
+    if (e.target === playButton) return;
     
-    // Stop original audio if playing
+    // Stop any audio
     introAudio.pause();
     introAudio.currentTime = 0;
     
@@ -341,14 +290,17 @@ Inject sarcasm, innuendo, and upbeat energy into EVERY SINGLE RESPONSE. If you'r
         }
       }
 
-      // Ensure it's a string before calling .startsWith()
+      // Ensure it's a string before processing
       if (typeof cleanText !== 'string') {
         cleanText = String(cleanText);
       }
 
-      // Ensure the prefix is there
+      // Ensure the prefix is there only once at the start
       if (!cleanText.startsWith("MC RODRIGO AI:")) {
         cleanText = "MC RODRIGO AI: " + cleanText;
+      } else {
+        // Remove any duplicate "MC RODRIGO AI:" that might appear after the first one
+        cleanText = "MC RODRIGO AI: " + cleanText.substring(14).replace(/MC RODRIGO AI:\s*/g, '');
       }
 
       const paragraphs = cleanText.split(/\n\s*\n/);
@@ -381,20 +333,29 @@ Inject sarcasm, innuendo, and upbeat energy into EVERY SINGLE RESPONSE. If you'r
     if (!userText) return;
 
     addMessage(userText, true);
-    // User input is sent directly and cleanly to Rodrigo.
+    // User input is sent directly to Rodrigo.
     conversation.push({ role: 'user', content: userText });
 
     userInput.value = '';
     setLoading(true);
     try {
-      const response = await puter.ai.chat(conversation, {
-        model: 'openrouter:mistralai/mistral-7b-instruct',
-        stream: false
-      });
+      // Check if puter is available, otherwise use fallback
+      let response;
+      if (typeof puter !== 'undefined' && puter.ai && puter.ai.chat) {
+        response = await puter.ai.chat(conversation, {
+          model: 'openrouter:mistralai/mistral-7b-instruct',
+          stream: false
+        });
+      } else {
+        // Fallback response if Puter.js isn't loaded
+        response = "MC RODRIGO AI: Whoa, Ed! Looks like our digital connection hit a snag - but don't worry, your techno overlord is still here. Try refreshing the page to get our frequencies synced properly. Until then, let's just say I'm operating in safe mode, baby!";
+      }
+      
       addMessage(response);
       conversation.push({ role: 'assistant', content: response });
     } catch (error) {
-      addMessage(`Error: ${error.message}`);
+      const errorMsg = `MC RODRIGO AI: Ed, we've got some interference in our connection! The error signal reads: ${error.message}. But hey, even the best DJs have technical difficulties. Let's get this sorted and get back to dropping those beats!`;
+      addMessage(errorMsg);
     } finally {
       setLoading(false);
     }
