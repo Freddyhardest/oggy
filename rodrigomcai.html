@@ -12,6 +12,7 @@
     margin: 0; padding: 0;
     display: flex; justify-content: center; align-items: center;
     height: 100vh;
+    overflow: hidden;
   }
   .container {
     width: 700px;
@@ -21,6 +22,7 @@
     box-shadow: 0 0 30px #00ffcc;
     display: flex; flex-direction: column;
     height: 80vh;
+    position: relative;
   }
   header {
     padding: 25px;
@@ -28,6 +30,30 @@
     font-size: 2rem;
     font-weight: bold;
     border-bottom: 1px solid #00ffcc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .audio-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .audio-btn {
+    background: transparent;
+    border: 1px solid #00ffcc;
+    color: #00ffcc;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.9rem;
+  }
+  .audio-btn:hover {
+    background: rgba(0, 255, 204, 0.2);
   }
   #chat-messages {
     flex-grow: 1;
@@ -156,6 +182,26 @@
     from { text-shadow: 0 0 10px #00ffcc; }
     to { text-shadow: 0 0 20px #00ffcc, 0 0 30px #00ffcc; }
   }
+  .visualizer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 2px;
+    padding: 0 10px 5px;
+    z-index: 5;
+  }
+  .bar {
+    width: 4px;
+    background: #00ffcc;
+    border-radius: 2px 2px 0 0;
+    height: 5px;
+    transition: height 0.1s ease;
+  }
 </style>
 </head>
 <body>
@@ -168,7 +214,14 @@
   </div>
 
   <section class="container" aria-label="Rodrigo MC Chat Interface">
-    <header>Rodrigo MC</header>
+    <header>
+      <span>Rodrigo MC</span>
+      <div class="audio-controls">
+        <button id="play-music" class="audio-btn" title="Play Techno Music">♫</button>
+        <button id="play-voice" class="audio-btn" title="Play Rodrigo Voice">♪</button>
+        <button id="stop-audio" class="audio-btn" title="Stop All Audio">■</button>
+      </div>
+    </header>
     <main id="chat-messages" aria-live="polite" aria-relevant="additions">
       <div class="message bot-message">
         <img src="https://i.ibb.co/h1nS27Cq/rodrigomc.png" alt="Rodrigo">
@@ -177,17 +230,27 @@
         </div>
       </div>
     </main>
+    
+    <!-- Audio visualizer -->
+    <div class="visualizer" id="visualizer"></div>
+    
     <footer>
-      <textarea id="user-input" placeholder=""></textarea>
-      <button id="send-btn" aria-label="Send that shit">Send</button>
+      <textarea id="user-input" placeholder="Type your message to Rodrigo..."></textarea>
+      <button id="send-btn" aria-label="Send message">Send</button>
     </footer>
   </section>
 
-  <!-- Audio element for intro audio - invisible player -->
-  <audio id="intro-audio" preload="auto" style="display: none;" crossorigin="anonymous">
-    <source src="https://www.w3schools.com/html/horse.ogg" type="audio/ogg">
-    <source src="https://www.w3schools.com/html/horse.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
+  <!-- Audio elements -->
+  <audio id="techno-music" loop>
+    <source src="https://cdn.pixabay.com/download/audio/2022/01/20/audio_5be6f2f7a2.mp3?filename=ambient-techno-loop-4-138100.mp3" type="audio/mpeg">
+  </audio>
+  
+  <audio id="rodrigo-voice">
+    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_325fcf3893.mp3?filename=electronic-sound-9687.mp3" type="audio/mpeg">
+  </audio>
+
+  <audio id="intro-audio" preload="auto" style="display: none;">
+    <source src="https://cdn.pixabay.com/download/audio/2021/10/25/audio_5d8ce66d89.mp3?filename=cinematic-electronic-intro-126602.mp3" type="audio/mpeg">
   </audio>
 
 <script src="https://js.puter.com/v2/"></script>
@@ -198,6 +261,19 @@
   const introOverlay = document.getElementById('intro-overlay');
   const introAudio = document.getElementById('intro-audio');
   const playButton = document.getElementById('play-button');
+  const technoMusic = document.getElementById('techno-music');
+  const rodrigoVoice = document.getElementById('rodrigo-voice');
+  const playMusicBtn = document.getElementById('play-music');
+  const playVoiceBtn = document.getElementById('play-voice');
+  const stopAudioBtn = document.getElementById('stop-audio');
+  const visualizer = document.getElementById('visualizer');
+
+  // Create audio visualizer bars
+  for (let i = 0; i < 32; i++) {
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    visualizer.appendChild(bar);
+  }
 
   const systemPrompt = `
 You are Rodrigo MC, the ultimate fusion of human soul and techno machinery - a cyberspace DJ with flesh-and-blood passion coursing through digital veins.
@@ -216,6 +292,66 @@ If you're not making Ed feel like they've discovered the perfect harmony between
     { role: 'system', content: systemPrompt }
   ];
 
+  // Audio context for visualizer
+  let audioContext;
+  let analyser;
+  let source;
+  let bars = document.querySelectorAll('.bar');
+  
+  // Initialize audio visualizer
+  function initVisualizer(audioElement) {
+    if (!audioContext) {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioContext.createAnalyser();
+      
+      // Create source from audio element
+      source = audioContext.createMediaElementSource(audioElement);
+      source.connect(analyser);
+      analyser.connect(audioContext.destination);
+      
+      analyser.fftSize = 64;
+      
+      // Visualize function
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      
+      function visualize() {
+        if (!audioContext) return;
+        
+        analyser.getByteFrequencyData(dataArray);
+        
+        for (let i = 0; i < bars.length; i++) {
+          const value = dataArray[i] / 255;
+          const height = value * 35;
+          bars[i].style.height = height + 'px';
+          bars[i].style.opacity = 0.2 + (value * 0.8);
+        }
+        
+        requestAnimationFrame(visualize);
+      }
+      
+      visualize();
+    }
+  }
+
+  // Audio control functions
+  playMusicBtn.addEventListener('click', () => {
+    technoMusic.play();
+    initVisualizer(technoMusic);
+  });
+  
+  playVoiceBtn.addEventListener('click', () => {
+    rodrigoVoice.play();
+    initVisualizer(rodrigoVoice);
+  });
+  
+  stopAudioBtn.addEventListener('click', () => {
+    technoMusic.pause();
+    rodrigoVoice.pause();
+    technoMusic.currentTime = 0;
+    rodrigoVoice.currentTime = 0;
+  });
+
   // Initialize intro sequence - requires user interaction
   playButton.addEventListener('click', function() {
     // Hide the play button
@@ -232,6 +368,9 @@ If you're not making Ed feel like they've discovered the perfect harmony between
         console.log('Audio playback failed:', error);
       });
     }
+    
+    // Initialize visualizer with intro audio
+    initVisualizer(introAudio);
     
     // Complete intro and show main interface
     function completeIntro() {
@@ -258,6 +397,8 @@ If you're not making Ed feel like they've discovered the perfect harmony between
     
     // Stop any audio
     introAudio.pause();
+    technoMusic.pause();
+    rodrigoVoice.pause();
     introAudio.currentTime = 0;
     
     // Hide overlay immediately
@@ -272,7 +413,10 @@ If you're not making Ed feel like they've discovered the perfect harmony between
     div.className = 'message ' + (isUser ? 'user-message' : 'bot-message');
 
     if (!isUser) {
-      // --- MINIMAL SANITIZATION: Extract plain text from AI response ---
+      // Play Rodrigo voice effect when he "speaks"
+      rodrigoVoice.currentTime = 0;
+      rodrigoVoice.play().catch(e => console.log("Audio play failed:", e));
+      
       let cleanText = text;
 
       // If it's an object, try to extract the content string
