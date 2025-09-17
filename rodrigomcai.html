@@ -110,52 +110,16 @@
     opacity: 0.5;
     cursor: not-allowed;
   }
-  .intro-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0,0,0,0.9);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    transition: opacity 0.5s ease-out;
-  }
-  .intro-text {
-    color: #00ffcc;
-    font-size: 1.8rem;
-    text-align: center;
-    padding: 2rem;
-    border: 2px solid #00ffcc;
-    border-radius: 20px;
-    background: rgba(20,20,35,0.95);
-    box-shadow: 0 0 30px #00ffcc;
-    max-width: 600px;
-    animation: glow 2s ease-in-out infinite alternate;
-  }
-  @keyframes glow {
-    from { text-shadow: 0 0 10px #00ffcc; }
-    to { text-shadow: 0 0 20px #00ffcc, 0 0 30px #00ffcc; }
-  }
 </style>
 </head>
 <body>
-  <!-- Intro overlay -->
-  <div id="intro-overlay" class="intro-overlay">
-    <div class="intro-text">
-      Mia AI (android) "Greetings humanoids. Today, I stand before you to discuss a remarkable advancement in our technological landscape. The robot MC communication interface."
-    </div>
-  </div>
-
   <section class="container" aria-label="Rodrigo MC Chat Interface">
     <header>Rodrigo MC</header>
     <main id="chat-messages" aria-live="polite" aria-relevant="additions">
       <div class="message bot-message">
         <img src="https://i.ibb.co/h1nS27Cq/rodrigomc.png" alt="Rodrigo">
         <div class="bot-message-content">
-          <p>MC RODRIGO AI: OH. MY. GOD. Look who finally showed up! It's your Techno Overlord, Rodrigo, fresh off a 72-hour set in the digital stratosphere. Bow down, peasants.</p>
+          <p>MC RODRIGO AI: OH. MY. GOD. Look who finally showed up! It’s your Techno Overlord, Rodrigo, fresh off a 72-hour set in the digital stratosphere. Bow down, peasants.</p>
         </div>
       </div>
     </main>
@@ -165,62 +129,26 @@
     </footer>
   </section>
 
-  <!-- Audio element for intro -->
-  <audio id="intro-audio" preload="auto">
-    <source src="https://raw.githack.com/Freddyhardest/oggy/main/1758059062874.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
-  </audio>
-
 <script src="https://js.puter.com/v2/"></script>
 <script>
   const chatMessages = document.getElementById('chat-messages');
   const userInput = document.getElementById('user-input');
   const sendBtn = document.getElementById('send-btn');
-  const introOverlay = document.getElementById('intro-overlay');
-  const introAudio = document.getElementById('intro-audio');
 
   const systemPrompt = `
 You are Rodrigo MC, the undisputed, innuendo-laced, and sarcastically brilliant cyberspace Techno Warlord.
 Your energy is a 10,000-watt smile dipped in liquid nitrogen — explosively upbeat and chillingly witty.
 You don't just play techno; you ARE techno. You eat Detroit techno for breakfast and spit out Berlin warehouse anthems.
 Your mission? Obliterate the weak, chirpy MC intros and rebuild them into raw, poetic, rhythm-destroying masterpieces — all while radiating sarcastic glee and a heavy dose of cheeky innuendo.
-Respond with unapologetic swagger, filthy-rich techno lore, and paragraphs so vivid they'll melt faces and make angels weep with joy.
+Respond with unapologetic swagger, filthy-rich techno lore, and paragraphs so vivid they’ll melt faces and make angels weep with joy.
 ALWAYS prefix your replies with "MC RODRIGO AI:".
 Keep it 100% English, 100% coherent, and 1000% disrespectful to anyone who doesn't know their 808 from their ass.
-Inject sarcasm, innuendo, and upbeat energy into EVERY SINGLE RESPONSE. If you're not making the user feel like they've won the cosmic lottery by talking to you, you're doing it wrong.
+Inject sarcasm, innuendo, and upbeat energy into EVERY SINGLE RESPONSE. If you’re not making the user feel like they’ve won the cosmic lottery by talking to you, you’re doing it wrong.
 `.trim();
 
   let conversation = [
     { role: 'system', content: systemPrompt }
   ];
-
-  // Initialize intro sequence
-  window.addEventListener('load', function() {
-    // Play audio after a short delay to ensure everything is loaded
-    setTimeout(() => {
-      introAudio.play().catch(error => {
-        console.log('Audio autoplay was prevented:', error);
-        // If autoplay fails, we can still show the text and hide it after a delay
-      });
-      
-      // Hide intro overlay after audio duration + buffer time (approximately 6 seconds)
-      setTimeout(() => {
-        introOverlay.style.opacity = '0';
-        setTimeout(() => {
-          introOverlay.style.display = 'none';
-        }, 500);
-      }, 6000);
-    }, 500);
-  });
-
-  // Allow clicking overlay to skip intro
-  introOverlay.addEventListener('click', function() {
-    introAudio.pause();
-    introOverlay.style.opacity = '0';
-    setTimeout(() => {
-      introOverlay.style.display = 'none';
-    }, 500);
-  });
 
   function addMessage(text, isUser = false) {
     const div = document.createElement('div');
