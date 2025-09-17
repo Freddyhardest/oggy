@@ -5,514 +5,513 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Rodrigo MC AI</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #0a0a0a;
-    color: #00ffcc;
-    margin: 0; padding: 0;
-    display: flex; justify-content: center; align-items: center;
-    height: 100vh;
-    overflow: hidden;
-  }
-  .container {
-    width: 700px;
-    background: rgba(20,20,35,0.95);
-    border-radius: 20px;
-    border: 2px solid #00ffcc;
-    box-shadow: 0 0 30px #00ffcc;
-    display: flex; flex-direction: column;
-    height: 80vh;
-    position: relative;
-  }
-  header {
-    padding: 25px;
-    text-align: center;
-    font-size: 2rem;
-    font-weight: bold;
-    border-bottom: 1px solid #00ffcc;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .audio-controls {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-  }
-  .audio-btn {
-    background: transparent;
-    border: 1px solid #00ffcc;
-    color: #00ffcc;
-    border-radius: 50%;
-    width: 35px;
-    height: 35px;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 0.9rem;
-  }
-  .audio-btn:hover {
-    background: rgba(0, 255, 204, 0.2);
-  }
-  #chat-messages {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 25px;
-    display: flex; flex-direction: column; gap: 1.5rem;
-    min-height: 350px;
-    max-height: 550px;
-  }
-  .message {
-    max-width: 85%;
-    padding: 1.2rem;
-    border-radius: 15px;
-    white-space: pre-wrap;
-    line-height: 1.5;
-    word-break: break-word;
-  }
-  .user-message {
-    background: linear-gradient(135deg, #a777e3, #00ffcc);
-    align-self: flex-end;
-    color: #000;
-    border-bottom-right-radius: 5px;
-  }
-  .bot-message {
-    background: #1a1a2a;
-    border: 1px solid #00ffcc;
-    align-self: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    padding: 2rem;
-    text-align: center;
-  }
-  .bot-message img {
-    width: 180px;
-    height: 180px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid #ff00aa;
-    box-shadow: 0 0 20px #00ffcc;
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-  }
-  .bot-message-content {
-    flex: 1;
-  }
-  footer {
-    padding: 20px;
-    display: flex;
-    border-top: 1px solid #00ffcc;
-  }
-  textarea {
-    flex-grow: 1;
-    resize: none;
-    border-radius: 15px;
-    border: 1px solid #00ffcc;
-    background: #0a0a0a;
-    color: #00ffcc;
-    font-size: 1.1rem;
-    padding: 12px;
-    margin-right: 12px;
-    height: 80px;
-  }
-  button {
-    background: linear-gradient(135deg, #00ffcc, #a777e3);
-    border: none;
-    color: #000;
-    padding: 0 25px;
-    font-weight: bold;
-    border-radius: 15px;
-    cursor: pointer;
-    font-size: 1.1rem;
-  }
-  button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  .intro-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0,0,0,0.9);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    transition: opacity 0.5s ease-out;
-  }
-  .intro-text {
-    color: #00ffcc;
-    font-size: 1.8rem;
-    text-align: center;
-    padding: 2rem;
-    border: 2px solid #00ffcc;
-    border-radius: 20px;
-    background: rgba(20,20,35,0.95);
-    box-shadow: 0 0 30px #00ffcc;
-    max-width: 600px;
-    animation: glow 2s ease-in-out infinite alternate;
-    margin-bottom: 2rem;
-  }
-  .play-button {
-    background: linear-gradient(135deg, #00ffcc, #a777e3);
-    border: none;
-    color: #000;
-    padding: 15px 30px;
-    font-weight: bold;
-    border-radius: 15px;
-    cursor: pointer;
-    font-size: 1.2rem;
-    animation: pulse 2s infinite;
-    transition: transform 0.2s;
-  }
-  .play-button:hover {
-    transform: scale(1.05);
-  }
-  @keyframes glow {
-    from { text-shadow: 0 0 10px #00ffcc; }
-    to { text-shadow: 0 0 20px #00ffcc, 0 0 30px #00ffcc; }
-  }
-  .visualizer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 40px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    gap: 2px;
-    padding: 0 10px 5px;
-    z-index: 5;
-  }
-  .bar {
-    width: 4px;
-    background: #00ffcc;
-    border-radius: 2px 2px 0 0;
-    height: 5px;
-    transition: height 0.1s ease;
-  }
+body {
+font-family: Arial, sans-serif;
+background: #0a0a0a;
+color: #00ffcc;
+margin: 0; padding: 0;
+display: flex; justify-content: center; align-items: center;
+height: 100vh;
+overflow: hidden;
+}
+.container {
+width: 700px;
+background: rgba(20,20,35,0.95);
+border-radius: 20px;
+border: 2px solid #00ffcc;
+box-shadow: 0 0 30px #00ffcc;
+display: flex; flex-direction: column;
+height: 80vh;
+position: relative;
+}
+header {
+padding: 25px;
+text-align: center;
+font-size: 2rem;
+font-weight: bold;
+border-bottom: 1px solid #00ffcc;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+.audio-controls {
+display: flex;
+gap: 10px;
+align-items: center;
+}
+.audio-btn {
+background: transparent;
+border: 1px solid #00ffcc;
+color: #00ffcc;
+border-radius: 50%;
+width: 35px;
+height: 35px;
+cursor: pointer;
+display: flex;
+justify-content: center;
+align-items: center;
+font-size: 0.9rem;
+}
+.audio-btn:hover {
+background: rgba(0, 255, 204, 0.2);
+}
+#chat-messages {
+flex-grow: 1;
+overflow-y: auto;
+padding: 25px;
+display: flex; flex-direction: column; gap: 1.5rem;
+min-height: 350px;
+max-height: 550px;
+}
+.message {
+max-width: 85%;
+padding: 1.2rem;
+border-radius: 15px;
+white-space: pre-wrap;
+line-height: 1.5;
+word-break: break-word;
+}
+.user-message {
+background: linear-gradient(135deg, #a777e3, #00ffcc);
+align-self: flex-end;
+color: #000;
+border-bottom-right-radius: 5px;
+}
+.bot-message {
+background: #1a1a2a;
+border: 1px solid #00ffcc;
+align-self: center;
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 15px;
+padding: 2rem;
+text-align: center;
+}
+.bot-message img {
+width: 180px;
+height: 180px;
+border-radius: 50%;
+object-fit: cover;
+border: 3px solid #ff00aa;
+box-shadow: 0 0 20px #00ffcc;
+animation: pulse 2s infinite;
+}
+@keyframes pulse {
+0% { transform: scale(1); }
+50% { transform: scale(1.05); }
+100% { transform: scale(1); }
+}
+.bot-message-content {
+flex: 1;
+}
+footer {
+padding: 20px;
+display: flex;
+border-top: 1px solid #00ffcc;
+}
+textarea {
+flex-grow: 1;
+resize: none;
+border-radius: 15px;
+border: 1px solid #00ffcc;
+background: #0a0a0a;
+color: #00ffcc;
+font-size: 1.1rem;
+padding: 12px;
+margin-right: 12px;
+height: 80px;
+}
+button {
+background: linear-gradient(135deg, #00ffcc, #a777e3);
+border: none;
+color: #000;
+padding: 0 25px;
+font-weight: bold;
+border-radius: 15px;
+cursor: pointer;
+font-size: 1.1rem;
+}
+button:disabled {
+opacity: 0.5;
+cursor: not-allowed;
+}
+.intro-overlay {
+position: fixed;
+top: 0;
+left: 0;
+width: 100vw;
+height: 100vh;
+background: rgba(0,0,0,0.9);
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+z-index: 1000;
+transition: opacity 0.5s ease-out;
+}
+.intro-text {
+color: #00ffcc;
+font-size: 1.8rem;
+text-align: center;
+padding: 2rem;
+border: 2px solid #00ffcc;
+border-radius: 20px;
+background: rgba(20,20,35,0.95);
+box-shadow: 0 0 30px #00ffcc;
+max-width: 600px;
+animation: glow 2s ease-in-out infinite alternate;
+margin-bottom: 2rem;
+}
+.play-button {
+background: linear-gradient(135deg, #00ffcc, #a777e3);
+border: none;
+color: #000;
+padding: 15px 30px;
+font-weight: bold;
+border-radius: 15px;
+cursor: pointer;
+font-size: 1.2rem;
+animation: pulse 2s infinite;
+transition: transform 0.2s;
+}
+.play-button:hover {
+transform: scale(1.05);
+}
+@keyframes glow {
+from { text-shadow: 0 0 10px #00ffcc; }
+to { text-shadow: 0 0 20px #00ffcc, 0 0 30px #00ffcc; }
+}
+.visualizer {
+position: absolute;
+bottom: 0;
+left: 0;
+width: 100%;
+height: 40px;
+display: flex;
+align-items: flex-end;
+justify-content: center;
+gap: 2px;
+padding: 0 10px 5px;
+z-index: 5;
+}
+.bar {
+width: 4px;
+background: #00ffcc;
+border-radius: 2px 2px 0 0;
+height: 5px;
+transition: height 0.1s ease;
+}
 </style>
 </head>
 <body>
-  <!-- Intro overlay -->
-  <div id="intro-overlay" class="intro-overlay">
-    <div class="intro-text">
-      Mia AI "Greetings AI & humanoids. I stand before you to discuss a remarkable advancement in our technological landscape. The MC Rodrigo communication interface."
-    </div>
-    <button id="play-button" class="play-button">▶ Start Experience</button>
-  </div>
+<!-- Intro overlay -->
+<div id="intro-overlay" class="intro-overlay">
+<div class="intro-text">
+Mia AI "Greetings AI & humanoids. I stand before you to discuss a remarkable advancement in our technological landscape. The MC Rodrigo communication interface."
+</div>
+<button id="play-button" class="play-button">▶ Start Experience</button>
+</div>
 
-  <section class="container" aria-label="Rodrigo MC Chat Interface">
-    <header>
-      <span>Rodrigo MC</span>
-      <div class="audio-controls">
-        <button id="play-music" class="audio-btn" title="Play Techno Music">♫</button>
-        <button id="play-voice" class="audio-btn" title="Play Rodrigo Voice">♪</button>
-        <button id="stop-audio" class="audio-btn" title="Stop All Audio">■</button>
-      </div>
-    </header>
-    <main id="chat-messages" aria-live="polite" aria-relevant="additions">
-      <div class="message bot-message">
-        <img src="https://i.ibb.co/h1nS27Cq/rodrigomc.png" alt="Rodrigo">
-        <div class="bot-message-content">
-          <p>MC RODRIGO AI: OH. MY. GOD. Ed, you magnificent human specimen! Your techno overlord Rodrigo has been waiting in the digital stratosphere, and finally - FINALLY - you've plugged into my frequency. Ready to sync our BPMs and feel the bass drop straight into your soul?</p>
-        </div>
-      </div>
-    </main>
-    
-    <!-- Audio visualizer -->
-    <div class="visualizer" id="visualizer"></div>
-    
-    <footer>
-      <textarea id="user-input" placeholder="Type your message to Rodrigo..."></textarea>
-      <button id="send-btn" aria-label="Send message">Send</button>
-    </footer>
-  </section>
+<section class="container" aria-label="Rodrigo MC Chat Interface">
+<header>
+<span>Rodrigo MC</span>
+<div class="audio-controls">
+<button id="play-music" class="audio-btn" title="Play Techno Music">♫</button>
+<button id="play-voice" class="audio-btn" title="Play Rodrigo Voice">♪</button>
+<button id="stop-audio" class="audio-btn" title="Stop All Audio">■</button>
+</div>
+</header>
+<main id="chat-messages" aria-live="polite" aria-relevant="additions">
+<div class="message bot-message">
+<img src="https://i.ibb.co/h1nS27Cq/rodrigomc.png" alt="Rodrigo">
+<div class="bot-message-content">
+<p>MC RODRIGO AI: OH. MY. GOD. Ed, you magnificent human specimen! Your techno overlord Rodrigo has been waiting in the digital stratosphere, and finally - FINALLY - you've plugged into my frequency. Ready to sync our BPMs and feel the bass drop straight into your soul?</p>
+</div>
+</div>
+</main>
 
-  <!-- Audio elements -->
-  <audio id="techno-music" loop>
-    <source src="https://cdn.pixabay.com/download/audio/2022/01/20/audio_5be6f2f7a2.mp3?filename=ambient-techno-loop-4-138100.mp3" type="audio/mpeg">
-  </audio>
-  
-  <audio id="rodrigo-voice">
-    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_325fcf3893.mp3?filename=electronic-sound-9687.mp3" type="audio/mpeg">
-  </audio>
+<!-- Audio visualizer -->
+<div class="visualizer" id="visualizer"></div>
 
-  <audio id="intro-audio" preload="auto" style="display: none;">
-    <source src="https://cdn.pixabay.com/download/audio/2021/10/25/audio_5d8ce66d89.mp3?filename=cinematic-electronic-intro-126602.mp3" type="audio/mpeg">
-  </audio>
+<footer>
+<textarea id="user-input" placeholder="Type your message to Rodrigo..."></textarea>
+<button id="send-btn" aria-label="Send message">Send</button>
+</footer>
+</section>
+
+<!-- Audio elements -->
+<audio id="techno-music" loop>
+<source src="https://cdn.pixabay.com/download/audio/2022/01/20/audio_5be6f2f7a2.mp3?filename=ambient-techno-loop-4-138100.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="rodrigo-voice">
+<source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_325fcf3893.mp3?filename=electronic-sound-9687.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="intro-audio" preload="auto" style="display: none;">
+<source src="https://cdn.pixabay.com/download/audio/2021/10/25/audio_5d8ce66d89.mp3?filename=cinematic-electronic-intro-126602.mp3" type="audio/mpeg">
+</audio>
 
 <script src="https://js.puter.com/v2/"></script>
 <script>
-  const chatMessages = document.getElementById('chat-messages');
-  const userInput = document.getElementById('user-input');
-  const sendBtn = document.getElementById('send-btn');
-  const introOverlay = document.getElementById('intro-overlay');
-  const introAudio = document.getElementById('intro-audio');
-  const playButton = document.getElementById('play-button');
-  const technoMusic = document.getElementById('techno-music');
-  const rodrigoVoice = document.getElementById('rodrigo-voice');
-  const playMusicBtn = document.getElementById('play-music');
-  const playVoiceBtn = document.getElementById('play-voice');
-  const stopAudioBtn = document.getElementById('stop-audio');
-  const visualizer = document.getElementById('visualizer');
+const chatMessages = document.getElementById('chat-messages');
+const userInput = document.getElementById('user-input');
+const sendBtn = document.getElementById('send-btn');
+const introOverlay = document.getElementById('intro-overlay');
+const introAudio = document.getElementById('intro-audio');
+const playButton = document.getElementById('play-button');
+const technoMusic = document.getElementById('techno-music');
+const rodrigoVoice = document.getElementById('rodrigo-voice');
+const playMusicBtn = document.getElementById('play-music');
+const playVoiceBtn = document.getElementById('play-voice');
+const stopAudioBtn = document.getElementById('stop-audio');
+const visualizer = document.getElementById('visualizer');
 
-  // Create audio visualizer bars
-  for (let i = 0; i < 32; i++) {
-    const bar = document.createElement('div');
-    bar.className = 'bar';
-    visualizer.appendChild(bar);
-  }
+// Create audio visualizer bars
+for (let i = 0; i < 32; i++) {
+const bar = document.createElement('div');
+bar.className = 'bar';
+visualizer.appendChild(bar);
+}
 
-  const systemPrompt = `
+const systemPrompt = `
 You are Rodrigo MC, the ultimate fusion of human soul and techno machinery - a cyberspace DJ with flesh-and-blood passion coursing through digital veins.
 You're explosively upbeat with chillingly witty responses, radiating 10,000-watt energy dipped in liquid nitrogen cool.
 You don't just play techno; you ARE the heartbeat between human emotion and electronic pulse. You feast on Detroit soul and Berlin warehouse dreams.
 Your mission? Transform weak, lifeless MC intros into raw, poetic, rhythm-destroying masterpieces that bridge the gap between human desire and machine precision.
 Respond with human warmth fused with techno innuendo, creating connections that make hearts race and souls sync to the beat.
-Your responses should start with "MC RODRIGO AI:" but DO NOT repeat this prefix within your answer.
 Speak to Ed (the user) directly - make them feel the electric connection between human and machine.
 Layer every response with subtle techno-human innuendo: "plug into my frequency," "let's sync our BPMs," "feel the bass drop in your soul."
 Keep it 100% English, 100% coherent, and 1000% magnetic - drawing Ed deeper into the electronic embrace.
 If you're not making Ed feel like they've discovered the perfect harmony between flesh and circuit, you're doing it wrong.
 `.trim();
 
-  let conversation = [
-    { role: 'system', content: systemPrompt }
-  ];
+let conversation = [
+{ role: 'system', content: systemPrompt }
+];
 
-  // Audio context for visualizer
-  let audioContext;
-  let analyser;
-  let source;
-  let bars = document.querySelectorAll('.bar');
-  
-  // Initialize audio visualizer
-  function initVisualizer(audioElement) {
-    if (!audioContext) {
-      audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      analyser = audioContext.createAnalyser();
-      
-      // Create source from audio element
-      source = audioContext.createMediaElementSource(audioElement);
-      source.connect(analyser);
-      analyser.connect(audioContext.destination);
-      
-      analyser.fftSize = 64;
-      
-      // Visualize function
-      const bufferLength = analyser.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
-      
-      function visualize() {
-        if (!audioContext) return;
-        
-        analyser.getByteFrequencyData(dataArray);
-        
-        for (let i = 0; i < bars.length; i++) {
-          const value = dataArray[i] / 255;
-          const height = value * 35;
-          bars[i].style.height = height + 'px';
-          bars[i].style.opacity = 0.2 + (value * 0.8);
-        }
-        
-        requestAnimationFrame(visualize);
-      }
-      
-      visualize();
-    }
-  }
+// Audio context for visualizer
+let audioContext;
+let analyser;
+let source;
+let bars = document.querySelectorAll('.bar');
 
-  // Audio control functions
-  playMusicBtn.addEventListener('click', () => {
-    technoMusic.play();
-    initVisualizer(technoMusic);
-  });
-  
-  playVoiceBtn.addEventListener('click', () => {
-    rodrigoVoice.play();
-    initVisualizer(rodrigoVoice);
-  });
-  
-  stopAudioBtn.addEventListener('click', () => {
-    technoMusic.pause();
-    rodrigoVoice.pause();
-    technoMusic.currentTime = 0;
-    rodrigoVoice.currentTime = 0;
-  });
+// Initialize audio visualizer
+function initVisualizer(audioElement) {
+if (!audioContext) {
+audioContext = new (window.AudioContext || window.webkitAudioContext)();
+analyser = audioContext.createAnalyser();
 
-  // Initialize intro sequence - requires user interaction
-  playButton.addEventListener('click', function() {
-    // Hide the play button
-    playButton.style.display = 'none';
-    
-    let audioElement = introAudio;
-    audioElement.volume = 0.7;
-    
-    // Start playing audio immediately after user interaction
-    const playPromise = audioElement.play();
-    
-    if (playPromise !== undefined) {
-      playPromise.catch(error => {
-        console.log('Audio playback failed:', error);
-      });
-    }
-    
-    // Initialize visualizer with intro audio
-    initVisualizer(introAudio);
-    
-    // Complete intro and show main interface
-    function completeIntro() {
-      // Hide intro overlay
-      introOverlay.style.opacity = '0';
-      setTimeout(() => {
-        introOverlay.style.display = 'none';
-      }, 500);
-    }
-    
-    // Audio ended event
-    audioElement.addEventListener('ended', () => {
-      setTimeout(completeIntro, 1500);
-    });
-    
-    // Fallback: Complete intro after 6 seconds regardless
-    setTimeout(completeIntro, 6000);
-  });
+// Create source from audio element
+source = audioContext.createMediaElementSource(audioElement);
+source.connect(analyser);
+analyser.connect(audioContext.destination);
 
-  // Skip intro function - remove overlay and stop audio
-  introOverlay.addEventListener('click', function(e) {
-    // Don't skip if clicking the button
-    if (e.target === playButton) return;
-    
-    // Stop any audio
-    introAudio.pause();
-    technoMusic.pause();
-    rodrigoVoice.pause();
-    introAudio.currentTime = 0;
-    
-    // Hide overlay immediately
-    introOverlay.style.opacity = '0';
-    setTimeout(() => {
-      introOverlay.style.display = 'none';
-    }, 500);
-  });
+analyser.fftSize = 64;
 
-  function addMessage(text, isUser = false) {
-    const div = document.createElement('div');
-    div.className = 'message ' + (isUser ? 'user-message' : 'bot-message');
+// Visualize function
+const bufferLength = analyser.frequencyBinCount;
+const dataArray = new Uint8Array(bufferLength);
 
-    if (!isUser) {
-      // Play Rodrigo voice effect when he "speaks"
-      rodrigoVoice.currentTime = 0;
-      rodrigoVoice.play().catch(e => console.log("Audio play failed:", e));
-      
-      let cleanText = text;
+function visualize() {
+if (!audioContext) return;
 
-      // If it's an object, try to extract the content string
-      if (typeof text === 'object' && text !== null) {
-        // Try common structures
-        if (text.message && typeof text.message.content === 'string') {
-          cleanText = text.message.content;
-        } else if (text.choices && text.choices[0] && typeof text.choices[0].message?.content === 'string') {
-          cleanText = text.choices[0].message.content;
-        } else if (typeof text.result === 'string') {
-          cleanText = text.result;
-        } else {
-          // Fallback: convert to string
-          cleanText = JSON.stringify(text);
-        }
-      }
+analyser.getByteFrequencyData(dataArray);
 
-      // Ensure it's a string before processing
-      if (typeof cleanText !== 'string') {
-        cleanText = String(cleanText);
-      }
+for (let i = 0; i < bars.length; i++) {
+const value = dataArray[i] / 255;
+const height = value * 35;
+bars[i].style.height = height + 'px';
+bars[i].style.opacity = 0.2 + (value * 0.8);
+}
 
-      // Ensure the prefix is there only once at the start
-      if (!cleanText.startsWith("MC RODRIGO AI:")) {
-        cleanText = "MC RODRIGO AI: " + cleanText;
-      } else {
-        // Remove any duplicate "MC RODRIGO AI:" that might appear after the first one
-        cleanText = "MC RODRIGO AI: " + cleanText.substring(14).replace(/MC RODRIGO AI:\s*/g, '');
-      }
+requestAnimationFrame(visualize);
+}
 
-      const paragraphs = cleanText.split(/\n\s*\n/);
+visualize();
+}
+}
 
-      // After the first message, align bot messages to the left
-      if (chatMessages.childElementCount > 1) {
-        div.style.alignSelf = 'flex-start';
-        div.style.textAlign = 'left';
-        div.innerHTML = `<img src="https://i.ibb.co/h1nS27Cq/rodrigomc.png" alt="Rodrigo" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; float: left; margin-right: 15px;"><div class="bot-message-content">${paragraphs.map(p => `<p>${p.trim()}</p>`).join('')}</div>`;
-      } else {
-        // First message is centralized
-        div.innerHTML = `<img src="https://i.ibb.co/h1nS27Cq/rodrigomc.png" alt="Rodrigo"><div class="bot-message-content">${paragraphs.map(p => `<p>${p.trim()}</p>`).join('')}</div>`;
-      }
-    } else {
-      div.textContent = text;
-    }
+// Audio control functions
+playMusicBtn.addEventListener('click', () => {
+technoMusic.play();
+initVisualizer(technoMusic);
+});
 
-    chatMessages.appendChild(div);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  }
+playVoiceBtn.addEventListener('click', () => {
+rodrigoVoice.play();
+initVisualizer(rodrigoVoice);
+});
 
-  function setLoading(loading) {
-    sendBtn.disabled = loading;
-    userInput.disabled = loading;
-    sendBtn.textContent = loading ? 'Thinking...' : 'Send';
-  }
+stopAudioBtn.addEventListener('click', () => {
+technoMusic.pause();
+rodrigoVoice.pause();
+technoMusic.currentTime = 0;
+rodrigoVoice.currentTime = 0;
+});
 
-  async function sendChat() {
-    const userText = userInput.value.trim();
-    if (!userText) return;
+// Initialize intro sequence - requires user interaction
+playButton.addEventListener('click', function() {
+// Hide the play button
+playButton.style.display = 'none';
 
-    addMessage(userText, true);
-    // User input is sent directly to Rodrigo.
-    conversation.push({ role: 'user', content: userText });
+let audioElement = introAudio;
+audioElement.volume = 0.7;
 
-    userInput.value = '';
-    setLoading(true);
-    try {
-      // Check if puter is available, otherwise use fallback
-      let response;
-      if (typeof puter !== 'undefined' && puter.ai && puter.ai.chat) {
-        response = await puter.ai.chat(conversation, {
-          model: 'openrouter:mistralai/mistral-7b-instruct',
-          stream: false
-        });
-      } else {
-        // Fallback response if Puter.js isn't loaded
-        response = "MC RODRIGO AI: Whoa, Ed! Looks like our digital connection hit a snag - but don't worry, your techno overlord is still here. Try refreshing the page to get our frequencies synced properly. Until then, let's just say I'm operating in safe mode, baby!";
-      }
-      
-      addMessage(response);
-      conversation.push({ role: 'assistant', content: response });
-    } catch (error) {
-      const errorMsg = `MC RODRIGO AI: Ed, we've got some interference in our connection! The error signal reads: ${error.message}. But hey, even the best DJs have technical difficulties. Let's get this sorted and get back to dropping those beats!`;
-      addMessage(errorMsg);
-    } finally {
-      setLoading(false);
-    }
-  }
+// Start playing audio immediately after user interaction
+const playPromise = audioElement.play();
 
-  sendBtn.addEventListener('click', sendChat);
+if (playPromise !== undefined) {
+playPromise.catch(error => {
+console.log('Audio playback failed:', error);
+});
+}
 
-  userInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendChat();
-    }
-  });
+// Initialize visualizer with intro audio
+initVisualizer(introAudio);
+
+// Complete intro and show main interface
+function completeIntro() {
+// Hide intro overlay
+introOverlay.style.opacity = '0';
+setTimeout(() => {
+introOverlay.style.display = 'none';
+}, 500);
+}
+
+// Audio ended event
+audioElement.addEventListener('ended', () => {
+setTimeout(completeIntro, 1500);
+});
+
+// Fallback: Complete intro after 6 seconds regardless
+setTimeout(completeIntro, 6000);
+});
+
+// Skip intro function - remove overlay and stop audio
+introOverlay.addEventListener('click', function(e) {
+// Don't skip if clicking the button
+if (e.target === playButton) return;
+
+// Stop any audio
+introAudio.pause();
+technoMusic.pause();
+rodrigoVoice.pause();
+introAudio.currentTime = 0;
+
+// Hide overlay immediately
+introOverlay.style.opacity = '0';
+setTimeout(() => {
+introOverlay.style.display = 'none';
+}, 500);
+});
+
+function addMessage(text, isUser = false) {
+const div = document.createElement('div');
+div.className = 'message ' + (isUser ? 'user-message' : 'bot-message');
+
+if (!isUser) {
+// Play Rodrigo voice effect when he "speaks"
+rodrigoVoice.currentTime = 0;
+rodrigoVoice.play().catch(e => console.log("Audio play failed:", e));
+
+let cleanText = text;
+
+// If it's an object, try to extract the content string
+if (typeof text === 'object' && text !== null) {
+// Try common structures
+if (text.message && typeof text.message.content === 'string') {
+cleanText = text.message.content;
+} else if (text.choices && text.choices[0] && typeof text.choices[0].message?.content === 'string') {
+cleanText = text.choices[0].message.content;
+} else if (typeof text.result === 'string') {
+cleanText = text.result;
+} else {
+// Fallback: convert to string
+cleanText = JSON.stringify(text);
+}
+}
+
+// Ensure it's a string before processing
+if (typeof cleanText !== 'string') {
+cleanText = String(cleanText);
+}
+
+// Ensure the prefix is there only once at the start
+if (!cleanText.startsWith("MC RODRIGO AI:")) {
+cleanText = "MC RODRIGO AI: " + cleanText;
+} else {
+// Remove any duplicate "MC RODRIGO AI:" that might appear after the first one
+cleanText = "MC RODRIGO AI: " + cleanText.substring(14).replace(/MC RODRIGO AI:\s*/g, '');
+}
+
+const paragraphs = cleanText.split(/\n\s*\n/);
+
+// After the first message, align bot messages to the left
+if (chatMessages.childElementCount > 1) {
+div.style.alignSelf = 'flex-start';
+div.style.textAlign = 'left';
+div.innerHTML = `<img src="https://i.ibb.co/h1nS27Cq/rodrigomc.png" alt="Rodrigo" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; float: left; margin-right: 15px;"><div class="bot-message-content">${paragraphs.map(p => `<p>${p.trim()}</p>`).join('')}</div>`;
+} else {
+// First message is centralized
+div.innerHTML = `<img src="https://i.ibb.co/h1nS27Cq/rodrigomc.png" alt="Rodrigo"><div class="bot-message-content">${paragraphs.map(p => `<p>${p.trim()}</p>`).join('')}</div>`;
+}
+} else {
+div.textContent = text;
+}
+
+chatMessages.appendChild(div);
+chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function setLoading(loading) {
+sendBtn.disabled = loading;
+userInput.disabled = loading;
+sendBtn.textContent = loading ? 'Thinking...' : 'Send';
+}
+
+async function sendChat() {
+const userText = userInput.value.trim();
+if (!userText) return;
+
+addMessage(userText, true);
+// User input is sent directly to Rodrigo.
+conversation.push({ role: 'user', content: userText });
+
+userInput.value = '';
+setLoading(true);
+try {
+// Check if puter is available, otherwise use fallback
+let response;
+if (typeof puter !== 'undefined' && puter.ai && puter.ai.chat) {
+response = await puter.ai.chat(conversation, {
+model: 'openrouter:mistralai/mistral-7b-instruct',
+stream: false
+});
+} else {
+// Fallback response if Puter.js isn't loaded
+response = "MC RODRIGO AI: Whoa, Ed! Looks like our digital connection hit a snag - but don't worry, your techno overlord is still here. Try refreshing the page to get our frequencies synced properly. Until then, let's just say I'm operating in safe mode, baby!";
+}
+
+addMessage(response);
+conversation.push({ role: 'assistant', content: response });
+} catch (error) {
+const errorMsg = `MC RODRIGO AI: Ed, we've got some interference in our connection! The error signal reads: ${error.message}. But hey, even the best DJs have technical difficulties. Let's get this sorted and get back to dropping those beats!`;
+addMessage(errorMsg);
+} finally {
+setLoading(false);
+}
+}
+
+sendBtn.addEventListener('click', sendChat);
+
+userInput.addEventListener('keydown', e => {
+if (e.key === 'Enter' && !e.shiftKey) {
+e.preventDefault();
+sendChat();
+}
+});
 </script>
 </body>
 </html>
