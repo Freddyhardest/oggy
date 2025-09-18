@@ -1,48 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Simulated Curl HTML Viewer</title>
+  <meta charset="UTF-8">
+  <title>Curl Example</title>
 </head>
 <body>
-  <h2>Simulated curl HTML Domain Viewer</h2>
+  <h2>Curl Output Viewer</h2>
   <input id="urlInput" type="text" placeholder="Enter URL (e.g., https://example.com)" size="50">
   <button onclick="fetchAndDisplay()">Fetch HTML</button>
   <div id="output" style="margin-top: 20px; white-space: pre-wrap;"></div>
-  <div id="hashOutput" style="margin-top: 10px; font-family: monospace;"></div>
 
   <script>
     async function fetchAndDisplay() {
       const url = document.getElementById('urlInput').value;
       const outputDiv = document.getElementById('output');
-      const hashDiv = document.getElementById('hashOutput');
-
-      try {
-        // Simulate 'curl' — fetch HTML content
-        const response = await fetch(url);
-        const html = await response.text();
-
-        // Display HTML (escaped for safety)
-        outputDiv.textContent = html.substring(0, 500) + (html.length > 500 ? "..." : ""); // preview
-
-        // Generate SHA-256 hash of the HTML (simulating "binary hash")
-        const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(html));
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-        hashDiv.textContent = "SHA-256 Hash: " + hashHex;
-
-        // Note: Cannot "allocate to SSD" from browser — but you can trigger download
-        const blob = new Blob([html], { type: 'text/html' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'page.html';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-      } catch (error) {
-        outputDiv.textContent = "Error: " + error.message;
-      }
+      
+      // Simulate 'curl' — fetch HTML content
+      const response = await fetch(url);
+      const html = await response.text();
+      
+      // Display HTML (escaped for safety)
+      outputDiv.textContent = html.substring(0, 500) + (html.length > 500 ? "..." : "");
     }
   </script>
 </body>
