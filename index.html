@@ -1,21 +1,31 @@
-<input id="urlInput" type="text" placeholder="Enter URL (e.g., https://httpbin.org/get)" size="50">
-<button onclick="fetchAndDisplay()">Fetch HTML</button>
-<div id="output" style="margin-top: 20px; white-space: pre-wrap;"></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Curl Output Viewer</title>
+</head>
+<body>
+  <h1>HTML from example.com</h1>
+  <pre id="html-content"></pre>
 
-<script>
-  async function fetchAndDisplay() {
-    const url = document.getElementById('urlInput').value;
-    const outputDiv = document.getElementById('output');
-    
-    // Use a fallback URL if example.com is unreachable
-    const fallbackUrl = 'https://httpbin.org/get';
-    const testUrl = url || fallbackUrl;
-    
-    // Fetch HTML content
-    const response = await fetch(testUrl);
-    const html = await response.text();
-
-    // Display HTML (escaped for safety)
-    outputDiv.textContent = html.substring(0, 500) + (html.length > 500 ? "..." : "");
-  }
-</script>
+  <script>
+    // Fetch from your own server's endpoint
+    async function fetchAndDisplay() {
+      const url = document.getElementById('urlInput').value;
+      const outputDiv = document.getElementById('output');
+      
+      // Use a fallback URL if example.com is unreachable
+      const fallbackUrl = 'https://httpbin.org/get';
+      const testUrl = url || fallbackUrl;
+      
+      // Fetch HTML content
+      const response = await fetch(testUrl);
+      const data = await response.text();
+      
+      // Display HTML (escaped for safety)
+      outputDiv.textContent = data.substring(0, 500) + (data.length > 500 ? "..." : "");
+    }
+  </script>
+</body>
+</html>
