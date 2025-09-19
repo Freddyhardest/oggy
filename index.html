@@ -266,6 +266,7 @@
                 this.playInterval = null;
                 this.successCount = 0;
                 this.loadStartTime = 0;
+                this.abortController = null; // For cancelling slow requests
 
                 // Performance optimization
                 this.debounceTimer = null;
@@ -364,6 +365,11 @@
             async loadCurrentURL() {
                 if (this.urls.length === 0) return;
 
+                // Cancel any previous request
+                if (this.abortController) {
+                    this.abortController.abort();
+                }
+
                 const url = this.urls[this.currentIndex];
                 const fullURL = url.startsWith('http') ? url : `https://${url}`;
 
@@ -371,11 +377,16 @@
                 this.elements.loadingOverlay.style.display = 'flex';
                 this.loadStartTime = performance.now();
 
+                // Create a new AbortController for this request
+                this.abortController = new AbortController();
+
                 try {
                     this.updateStatus('Fetching source...', 'loading');
 
-                    // Send request to your Render backend
-                    const proxyResponse = await fetch(`https://queer.onrender.com/code.py?url=${encodeURIComponent(fullURL)}`);
+                    // Send request to your Render backend with a 10-second timeout
+                    const proxyResponse = await fetch(`https://queer.onrender.com/code.py?url=${encodeURIComponent(fullURL)}`, {
+                        signal: this.abortController.signal
+                    });
 
                     const data = await proxyResponse.json();
 
@@ -388,8 +399,16 @@
                     this.onURLLoad(data.size);
 
                 } catch (error) {
-                    this.onURLError(error.message);
+                    // Check if the error is due to an abort (timeout or user action)
+                    if (error.name === 'AbortError') {
+                        this.onURLError('Request timed out');
+                    } else {
+                        this.onURLError(error.message);
+                    }
                 }
+
+                // CRITICAL FIX: Update the UI to reflect the current index
+                this.updateUI();
             }
 
             onURLLoad(size) {
@@ -407,11 +426,11 @@
                 this.updateStatus('Failed to load source', 'error');
                 this.updateStats();
 
-                // Auto-skip to next URL after delay
+                // Auto-skip to next URL after a VERY short delay (optimized for speed)
                 if (this.isPlaying) {
                     setTimeout(() => {
                         this.nextURL();
-                    }, 2000);
+                    }, 500); // Reduced from 2000ms to 500ms
                 }
             }
 
