@@ -1,0 +1,8 @@
+{
+    "name": "freddyhardest/oggy",
+    "description": "A simple PHP proxy to fetch HTML content.",
+    "type": "project",
+    "require": {
+        "php": "^8.0"
+    }
+}
