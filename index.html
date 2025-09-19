@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+where do i upload this to for functionality? <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Javascript: matrix generator</title>
+    <title>JMatrix Generator/title>
     <style>
         /* Speed-optimized CSS with minimal reflows */
         * {
@@ -225,7 +225,7 @@
             <!-- Fractal Component: URL Display -->
             <div class="fractal-component">
                 <div class="fractal-header">Current URL</div>
-                <div class="url-display" id="urlDisplay">https://0-1.one</div>
+                <div class="url-display" id="urlDisplay">https://0-1.one  </div>
             </div>
 
             <!-- MODIFIED: Fractal Component: Source Code Viewer -->
@@ -266,7 +266,6 @@
                 this.playInterval = null;
                 this.successCount = 0;
                 this.loadStartTime = 0;
-                this.abortController = null; // For cancelling slow requests
 
                 // Performance optimization
                 this.debounceTimer = null;
@@ -313,7 +312,7 @@
             async loadURLs() {
                 try {
                     // Fetch the URLs from the text file
-                    const response = await fetch('https://raw.githubusercontent.com/cenk/nrd/refs/heads/main/nrd-last-10-days.txt');
+                    const response = await fetch('https://raw.githubusercontent.com/cenk/nrd/refs/heads/main/nrd-last-10-days.txt  ');
                     const text = await response.text();
 
                     // Parse URLs (skip comment lines starting with #)
@@ -327,11 +326,11 @@
                     console.error('Failed to load URLs:', error);
                     // Fallback to sample URLs if fetch fails
                     this.urls = [
-                        'https://0-1.one',
-                        'https://0-1c.com',
-                        'https://0-centra.org',
-                        'https://00-00.net',
-                        'https://00.law'
+                        'https://0-1.one  ',
+                        'https://0-1c.com  ',
+                        'https://0-centra.org  ',
+                        'https://00-00.net  ',
+                        'https://00.law  '
                     ];
                 }
             }
@@ -365,11 +364,6 @@
             async loadCurrentURL() {
                 if (this.urls.length === 0) return;
 
-                // Cancel any previous request
-                if (this.abortController) {
-                    this.abortController.abort();
-                }
-
                 const url = this.urls[this.currentIndex];
                 const fullURL = url.startsWith('http') ? url : `https://${url}`;
 
@@ -377,16 +371,11 @@
                 this.elements.loadingOverlay.style.display = 'flex';
                 this.loadStartTime = performance.now();
 
-                // Create a new AbortController for this request
-                this.abortController = new AbortController();
-
                 try {
                     this.updateStatus('Fetching source...', 'loading');
 
-                    // Send request to your Render backend with a 10-second timeout
-                    const proxyResponse = await fetch(`https://queer.onrender.com/code.py?url=${encodeURIComponent(fullURL)}`, {
-                        signal: this.abortController.signal
-                    });
+                    // Send request to your Render backend
+                    const proxyResponse = await fetch(`https://queer.onrender.com/code.py?url=${encodeURIComponent(fullURL)}`);
 
                     const data = await proxyResponse.json();
 
@@ -399,16 +388,8 @@
                     this.onURLLoad(data.size);
 
                 } catch (error) {
-                    // Check if the error is due to an abort (timeout or user action)
-                    if (error.name === 'AbortError') {
-                        this.onURLError('Request timed out');
-                    } else {
-                        this.onURLError(error.message);
-                    }
+                    this.onURLError(error.message);
                 }
-
-                // CRITICAL FIX: Update the UI to reflect the current index
-                this.updateUI();
             }
 
             onURLLoad(size) {
@@ -426,11 +407,11 @@
                 this.updateStatus('Failed to load source', 'error');
                 this.updateStats();
 
-                // Auto-skip to next URL after a VERY short delay (optimized for speed)
+                // Auto-skip to next URL after delay
                 if (this.isPlaying) {
                     setTimeout(() => {
                         this.nextURL();
-                    }, 500); // Reduced from 2000ms to 500ms
+                    }, 2000);
                 }
             }
 
@@ -523,4 +504,4 @@
         });
     </script>
 </body>
-</html>
+</html>  
