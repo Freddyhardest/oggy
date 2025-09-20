@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JMatrix Generator/title>
+    <title>JMatrix Generator</title>
     <style>
         /* Speed-optimized CSS with minimal reflows */
         * {
@@ -105,7 +105,6 @@
             font-size: 14px;
         }
 
-        /* MODIFIED: Replaced iframe with a source code viewer */
         .source-container {
             position: relative;
             height: 600px;
@@ -165,7 +164,6 @@
             transition: width 0.3s ease;
         }
 
-        /* Fractal containment styling */
         .fractal-component {
             border: 1px solid #e9ecef;
             border-radius: 8px;
@@ -197,6 +195,10 @@
                 flex-direction: column;
                 gap: 5px;
             }
+            
+            .source-container {
+                height: 400px;
+            }
         }
     </style>
 </head>
@@ -207,7 +209,6 @@
         </div>
 
         <div class="viewer-container">
-            <!-- Fractal Component: Controls -->
             <div class="fractal-component">
                 <div class="fractal-header">Navigation Controls</div>
                 <div class="controls">
@@ -222,13 +223,11 @@
                 </div>
             </div>
 
-            <!-- Fractal Component: URL Display -->
             <div class="fractal-component">
                 <div class="fractal-header">Current URL</div>
-                <div class="url-display" id="urlDisplay">https://0-1.one  </div>
+                <div class="url-display" id="urlDisplay">https://0-1.one</div>
             </div>
 
-            <!-- MODIFIED: Fractal Component: Source Code Viewer -->
             <div class="fractal-component">
                 <div class="fractal-header">Source Code Viewer</div>
                 <div class="source-container">
@@ -237,7 +236,6 @@
                 </div>
             </div>
 
-            <!-- Fractal Component: Statistics -->
             <div class="fractal-component">
                 <div class="fractal-header">Statistics</div>
                 <div class="stats">
@@ -250,33 +248,27 @@
     </div>
 
     <script>
-        // Speed-optimized JavaScript with strict mode
         'use strict';
 
-        // Fractal containment - Main viewer component
         class SequentialURLViewer {
             constructor() {
-                // Cache DOM elements for speed
                 this.cacheElements();
-
-                // State management
                 this.urls = [];
                 this.currentIndex = 0;
                 this.isPlaying = false;
                 this.playInterval = null;
                 this.successCount = 0;
                 this.loadStartTime = 0;
-
-                // Performance optimization
                 this.debounceTimer = null;
                 this.cache = new Map();
-
-                // Initialize
+                this.totalUrls = 0;
+                this.loadedUrls = 0;
+                this.batchSize = 1000;
+                
                 this.init();
             }
 
             cacheElements() {
-                // Cache all DOM references to minimize DOM queries
                 this.elements = {
                     prevBtn: document.getElementById('prevBtn'),
                     nextBtn: document.getElementById('nextBtn'),
@@ -284,7 +276,6 @@
                     reloadBtn: document.getElementById('reloadBtn'),
                     status: document.getElementById('status'),
                     urlDisplay: document.getElementById('urlDisplay'),
-                    // MODIFIED: Replaced iframe with source content
                     sourceContent: document.getElementById('sourceContent'),
                     loadingOverlay: document.getElementById('loadingOverlay'),
                     progressFill: document.getElementById('progressFill'),
@@ -298,7 +289,6 @@
                 this.updateStatus('Initializing...', 'loading');
 
                 try {
-                    // Load URLs from the text file
                     await this.loadURLs();
                     this.setupEventListeners();
                     this.loadCurrentURL();
@@ -311,39 +301,61 @@
 
             async loadURLs() {
                 try {
-                    // Fetch the URLs from the text file
-                    const response = await fetch('https://raw.githubusercontent.com/cenk/nrd/refs/heads/main/nrd-last-10-days.txt  ');
+                    const response = await fetch('https://raw.githubusercontent.com/cenk/nrd/refs/heads/main/nrd-last-10-days.txt');
                     const text = await response.text();
-
-                    // Parse URLs (skip comment lines starting with #)
-                    this.urls = text.split('\n')
+                    
+                    const allUrls = text.split('\n')
                         .filter(line => line.trim() && !line.startsWith('#'))
                         .map(line => line.trim())
-                        .filter(line => line.includes('.')); // Ensure it's a valid domain
-
-                    console.log(`Loaded ${this.urls.length} URLs`);
+                        .filter(line => line.includes('.'));
+                    
+                    this.totalUrls = allUrls.length;
+                    this.urls = allUrls.slice(0, this.batchSize);
+                    this.loadedUrls = this.batchSize;
+                    
+                    console.log(`Loaded ${this.urls.length} of ${this.totalUrls} URLs`);
                 } catch (error) {
                     console.error('Failed to load URLs:', error);
-                    // Fallback to sample URLs if fetch fails
                     this.urls = [
-                        'https://0-1.one  ',
-                        'https://0-1c.com  ',
-                        'https://0-centra.org  ',
-                        'https://00-00.net  ',
-                        'https://00.law  '
+                        'https://0-1.one',
+                        'https://0-1c.com',
+                        'https://0-centra.org',
+                        'https://00-00.net',
+                        'https://00.law'
                     ];
+                    this.totalUrls = this.urls.length;
+                }
+            }
+
+            async loadMoreUrls() {
+                if (this.loadedUrls >= this.totalUrls) return;
+                
+                try {
+                    const response = await fetch('https://raw.githubusercontent.com/cenk/nrd/refs/heads/main/nrd-last-10-days.txt');
+                    const text = await response.text();
+                    
+                    const allUrls = text.split('\n')
+                        .filter(line => line.trim() && !line.startsWith('#'))
+                        .map(line => line.trim())
+                        .filter(line => line.includes('.'));
+                    
+                    const newUrls = allUrls.slice(this.loadedUrls, this.loadedUrls + this.batchSize);
+                    this.urls = [...this.urls, ...newUrls];
+                    this.loadedUrls += newUrls.length;
+                    
+                    console.log(`Loaded additional ${newUrls.length} URLs. Total: ${this.urls.length}`);
+                } catch (error) {
+                    console.error('Failed to load more URLs:', error);
                 }
             }
 
             setupEventListeners() {
-                // Event delegation for better performance
                 this.elements.prevBtn.addEventListener('click', () => this.previousURL());
                 this.elements.nextBtn.addEventListener('click', () => this.nextURL());
                 this.elements.playBtn.addEventListener('click', () => this.toggleAutoPlay());
                 this.elements.reloadBtn.addEventListener('click', () => this.reloadCurrentURL());
 
-                // Keyboard shortcuts for speed
-                document.addEventListener('keydown', (e) => {
+                this.keydownHandler = (e) => {
                     switch(e.key) {
                         case 'ArrowLeft':
                             this.previousURL();
@@ -357,10 +369,11 @@
                             this.toggleAutoPlay();
                             break;
                     }
-                });
+                };
+                
+                document.addEventListener('keydown', this.keydownHandler);
             }
 
-            // MODIFIED: This function now fetches source code via your Render backend
             async loadCurrentURL() {
                 if (this.urls.length === 0) return;
 
@@ -373,17 +386,24 @@
 
                 try {
                     this.updateStatus('Fetching source...', 'loading');
+                    
+                    // Load more URLs if we're near the end
+                    if (this.currentIndex > this.urls.length - 100) {
+                        await this.loadMoreUrls();
+                    }
 
-                    // Send request to your Render backend
                     const proxyResponse = await fetch(`https://queer.onrender.com/code.py?url=${encodeURIComponent(fullURL)}`);
-
+                    
+                    if (!proxyResponse.ok) {
+                        throw new Error(`HTTP error! Status: ${proxyResponse.status}`);
+                    }
+                    
                     const data = await proxyResponse.json();
 
                     if (data.error) {
                         throw new Error(data.error);
                     }
 
-                    // Display the raw HTML source code
                     this.elements.sourceContent.textContent = data.html;
                     this.onURLLoad(data.size);
 
@@ -407,7 +427,6 @@
                 this.updateStatus('Failed to load source', 'error');
                 this.updateStats();
 
-                // Auto-skip to next URL after delay
                 if (this.isPlaying) {
                     setTimeout(() => {
                         this.nextURL();
@@ -449,7 +468,7 @@
                 this.elements.playBtn.textContent = '⏸ Pause';
                 this.playInterval = setInterval(() => {
                     this.nextURL();
-                }, 5000); // 5 second intervals
+                }, 5000);
             }
 
             stopAutoPlay() {
@@ -467,41 +486,48 @@
             }
 
             updateUI() {
-                // Update progress bar
-                const progress = ((this.currentIndex + 1) / this.urls.length) * 100;
+                const progress = this.totalUrls > 0 ? 
+                    ((this.currentIndex + 1) / this.totalUrls) * 100 : 0;
                 this.elements.progressFill.style.width = `${progress}%`;
 
-                // Update current index display
-                this.elements.currentIndex.textContent = `URL ${this.currentIndex + 1} of ${this.urls.length}`;
+                this.elements.currentIndex.textContent = 
+                    `URL ${this.currentIndex + 1} of ${this.totalUrls}`;
 
-                // Update button states
                 this.elements.prevBtn.disabled = this.currentIndex === 0;
                 this.elements.nextBtn.disabled = this.currentIndex === this.urls.length - 1;
             }
 
             updateStats() {
-                const successRate = this.urls.length > 0 ?
+                const successRate = this.currentIndex > 0 ?
                     Math.round((this.successCount / (this.currentIndex + 1)) * 100) : 0;
                 this.elements.successRate.textContent = `Success Rate: ${successRate}%`;
+                
+                this.updateUI();
+            }
+
+            cleanup() {
+                this.stopAutoPlay();
+                if (this.keydownHandler) {
+                    document.removeEventListener('keydown', this.keydownHandler);
+                }
             }
         }
 
-        // Speed optimization: Initialize when DOM is ready
+        // Initialize when DOM is ready
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
-                new SequentialURLViewer();
+                window.viewer = new SequentialURLViewer();
             });
         } else {
-            new SequentialURLViewer();
+            window.viewer = new SequentialURLViewer();
         }
 
         // Memory management
         window.addEventListener('beforeunload', () => {
-            // Clean up intervals and event listeners
-            if (window.viewer && window.viewer.playInterval) {
-                clearInterval(window.viewer.playInterval);
+            if (window.viewer) {
+                window.viewer.cleanup();
             }
         });
     </script>
 </body>
-</html>  
+</html>
